@@ -3,1413 +3,974 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>沖繩代購 V2.3</title>
-
+<title>沖繩代購</title>
 <style>
+:root{--navy:#17324d;--cream:#fbf7ef;--green:#17864b;--red:#b91c1c;--muted:#6b7280;--line:#e7e2d8}
 *{box-sizing:border-box}
+body{margin:0;background:#e9ecef;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;color:#202733}
+.app{width:min(430px,100vw);min-height:100vh;margin:auto;background:var(--cream);padding-bottom:90px}
+header{position:sticky;top:0;z-index:5;background:#fff;padding:14px 16px 12px;border-bottom:1px solid var(--line)}
+.top,.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.brand{font-size:20px;font-weight:900}.sync{font-size:12px;color:var(--green);font-weight:800}
+.user{display:flex;gap:7px;margin-top:8px}.who,.pill{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 10px;font-weight:800}
+.who.on{background:var(--navy);color:#fff}
+.version{font-size:10px;color:#9ca3af;margin-top:5px}
+main{padding:14px}.screen{display:none}.screen.on{display:block}
+h2{margin:2px 0 4px}.lead,.small{font-size:12px;color:var(--muted)}.lead{margin-bottom:12px}
+.card{background:#fff;border-radius:17px;padding:14px;margin-bottom:10px}.name{font-weight:900}
+label{display:block;font-size:12px;font-weight:800;margin:10px 0 5px}
+input{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:16px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.btn{width:100%;border:0;border-radius:13px;padding:13px;font-weight:900;font-size:15px}
+.primary{background:var(--navy);color:#fff}.ghost{background:#f2f3f5}.danger{background:#fee2e2;color:var(--red)}.warn{background:#fff1c7;color:#8a5700}
+.actions{display:flex;gap:6px;margin-top:10px}.mini{flex:1;border:0;border-radius:10px;padding:9px 5px;font-weight:800}
+.badge{border:0;border-radius:999px;padding:8px 10px;font-weight:900}.paid,.done{background:#dcfce7;color:#166534}.unpaid{background:#fee2e2;color:#991b1b}.todo{background:#fff1c7;color:#8a5700}
+.empty{background:#fff;border-radius:17px;padding:28px 16px;text-align:center;color:#6b7280}
+.error{display:none;background:#fee2e2;color:#991b1b;padding:10px 12px;border-radius:12px;margin-top:10px;font-size:12px}
+.bottom{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100vw);display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:7px 3px 9px;z-index:10}
+.nav{border:0;background:none;color:#7a8088;font-size:11px;font-weight:800}.nav b{display:block;font-size:22px}.nav.on{color:var(--navy)}
+.modal{display:none;position:fixed;inset:0;background:#0007;z-index:20;align-items:flex-end;justify-content:center}.modal.open{display:flex}
+.sheet{width:min(430px,100vw);background:#fff;border-radius:22px 22px 0 0;padding:18px;max-height:88vh;overflow:auto}
+.log{padding:9px 0;border-top:1px solid var(--line)}
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#17212b;color:#fff;padding:10px 14px;border-radius:999px;display:none;z-index:30;white-space:nowrap}
 
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
-  background:#fbf7ef;
-  color:#17324d;
+.photoBox{border:2px dashed #d7cec2;border-radius:16px;padding:14px;text-align:center;background:#fffdf9}
+.photoActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.photoBtn{border:0;border-radius:12px;padding:12px;font-weight:900;font-size:14px}
+.photoCamera{background:#eef4ff;color:#1d4ed8}
+.photoGallery{background:#f6f0ff;color:#6d28d9}
+.photoPreview{display:none;margin-top:12px}
+.photoPreview img{width:100%;max-height:240px;object-fit:cover;border-radius:14px}
+.photoThumb{width:64px;height:64px;object-fit:cover;border-radius:12px;border:1px solid #eee;margin-right:10px}
+
+
+.cameraOverlay{display:none;position:fixed;inset:0;background:#000;z-index:9999;flex-direction:column}
+.cameraOverlay.on{display:flex}
+.cameraTop{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;color:#fff}
+.cameraVideoWrap{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}
+.cameraVideo{width:100%;height:100%;object-fit:cover}
+.cameraBottom{display:flex;justify-content:center;align-items:center;gap:18px;padding:18px;background:#000}
+.shutter{width:72px;height:72px;border-radius:50%;border:5px solid #fff;background:#fff3}
+.cameraClose{border:1px solid #ffffff66;background:#ffffff20;color:#fff;border-radius:999px;padding:10px 14px;font-weight:800}
+.cameraFallback{border:1px solid #ffffff66;background:#ffffff20;color:#fff;border-radius:12px;padding:10px 14px;font-weight:800}
+.cameraMsg{font-size:12px;color:#fff;text-align:center;padding:6px 14px 0}
+
+
+.identityOverlay{
+  display:none;position:fixed;inset:0;background:#0008;z-index:10050;
+  align-items:center;justify-content:center;padding:18px
+}
+.identityOverlay.on{display:flex}
+.identityCard{
+  width:min(380px,100%);background:#fff;border-radius:22px;padding:20px;
+  box-shadow:0 20px 60px #0004;text-align:center
+}
+.identityTitle{font-size:23px;font-weight:900;margin-bottom:6px}
+.identitySub{font-size:13px;color:#6b7280;line-height:1.5;margin-bottom:16px}
+.identityChoices{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.identityChoice{
+  border:1px solid #e7e2d8;background:#fff;border-radius:16px;padding:18px 10px;
+  font-size:17px;font-weight:900
+}
+.identityChoice:active{transform:scale(.98)}
+.deviceHint{
+  font-size:11px;color:#6b7280;margin-top:12px;line-height:1.5
 }
 
-.page{
-  min-height:100vh;
-  padding:20px 14px 60px;
-}
-
-.app{
-  width:100%;
-  max-width:460px;
-  margin:auto;
-}
-
-.header{
-  text-align:center;
-  margin-bottom:18px;
-}
-
-.jp{
-  font-size:38px;
-  font-weight:900;
-}
-
-h1{
-  margin:4px 0 0;
-  font-size:30px;
-}
-
-.version{
-  margin-top:7px;
-  color:#64748b;
-  font-size:14px;
-}
-
-.card{
-  background:#fff;
-  border-radius:22px;
-  padding:20px;
-  margin-bottom:15px;
-  box-shadow:0 8px 30px rgba(0,0,0,.06);
-}
-
-.sectionTitle{
-  font-size:18px;
-  font-weight:900;
-  margin-bottom:15px;
-}
-
-label{
-  display:block;
-  font-size:14px;
-  font-weight:800;
-  margin:13px 0 6px;
-}
-
-input{
-  width:100%;
-  border:1px solid #cbd5e1;
-  border-radius:12px;
-  padding:13px;
-  font-size:16px;
-  background:white;
-}
-
-input:focus{
-  outline:2px solid #bfdbfe;
-  border-color:#3b82f6;
-}
-
-.userButtons{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.userBtn{
-  border:1px solid #cbd5e1;
-  background:white;
-  color:#17324d;
-  border-radius:13px;
-  padding:13px;
-  font-size:16px;
-  font-weight:900;
-}
-
-.userBtn.active{
-  background:#173a59;
-  color:white;
-  border-color:#173a59;
-}
-
-.mainBtn{
-  width:100%;
-  border:0;
-  border-radius:14px;
-  padding:16px;
-  margin-top:18px;
-  background:#173a59;
-  color:white;
-  font-size:17px;
-  font-weight:900;
-  cursor:pointer;
-}
-
-.mainBtn:disabled{
-  opacity:.55;
-}
-
-.syncBtn{
-  margin-top:0;
-}
-
-.status{
-  margin-top:14px;
-  padding:14px;
-  border-radius:14px;
-  background:#f1f5f9;
-  line-height:1.6;
-}
-
-.success{
-  background:#dcfce7;
-  color:#166534;
-}
-
-.error{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.totalBox{
-  margin-top:15px;
-  padding:14px;
-  border-radius:14px;
-  background:#f1f5f9;
-}
-
-.totalLabel{
-  color:#64748b;
-  font-size:13px;
-}
-
-.totalValue{
-  font-size:23px;
-  font-weight:900;
-  margin-top:3px;
-}
-
-.summary{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-}
-
-.summaryBox{
-  background:#f8fafc;
-  border-radius:14px;
-  padding:14px;
-}
-
-.summaryLabel{
-  font-size:13px;
-  color:#64748b;
-}
-
-.summaryValue{
-  font-size:20px;
-  font-weight:900;
-  margin-top:4px;
-}
-
-.syncTime{
-  text-align:center;
-  margin-top:12px;
-  color:#64748b;
-  font-size:12px;
-}
-
-/* 採買 */
-
-.buyItem{
-  border:1px solid #e2e8f0;
-  border-radius:16px;
-  padding:15px;
-  margin-bottom:12px;
-}
-
-.buyDone{
-  background:#f0fdf4;
-}
-
-.buyTitle{
-  font-weight:900;
-  font-size:17px;
-  margin-bottom:10px;
-}
-
-.buyStats{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:7px;
-  margin-bottom:10px;
-}
-
-.stat{
-  text-align:center;
-  padding:9px 4px;
-  border-radius:10px;
-  background:#f8fafc;
-}
-
-.statLabel{
-  font-size:11px;
-  color:#64748b;
-}
-
-.statValue{
-  font-size:18px;
-  font-weight:900;
-  margin-top:2px;
-}
-
-.need{
-  background:#fff7ed;
-}
-
-.done{
-  background:#dcfce7;
-}
-
-.buyBtn{
-  width:100%;
-  border:0;
-  border-radius:12px;
-  padding:12px;
-  background:#173a59;
-  color:white;
-  font-size:15px;
-  font-weight:900;
-}
-
-.buyBtn:disabled{
-  background:#94a3b8;
-}
-
-/* 訂單 */
-
-.order{
-  border:1px solid #e2e8f0;
-  border-radius:16px;
-  padding:15px;
-  margin-bottom:11px;
-}
-
-.order.cancelled{
-  opacity:.55;
-  background:#f8fafc;
-}
-
-.orderTop{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:10px;
-  margin-bottom:9px;
-}
-
-.orderId{
-  font-weight:900;
-}
-
-.badge{
-  padding:4px 9px;
-  border-radius:999px;
-  background:#e0f2fe;
-  color:#075985;
-  font-size:12px;
-  font-weight:800;
-}
-
-.cancelBadge{
-  background:#fee2e2;
-  color:#991b1b;
-}
-
-.row{
-  color:#334155;
-  line-height:1.7;
-  word-break:break-word;
-}
-
-.empty{
-  text-align:center;
-  color:#64748b;
-  padding:22px 5px;
-}
-
-/* 採買輸入視窗 */
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(15,23,42,.45);
-  z-index:999;
-  padding:20px;
-  align-items:flex-end;
-  justify-content:center;
-}
-
-.modal.open{
-  display:flex;
-}
-
-.modalSheet{
-  width:100%;
-  max-width:460px;
-  max-height:90vh;
-  overflow:auto;
-  background:white;
-  border-radius:22px;
-  padding:20px;
-}
-
-.modalTitle{
-  font-size:20px;
-  font-weight:900;
-}
-
-.modalSub{
-  color:#64748b;
-  margin-top:5px;
-  line-height:1.5;
-}
-
-.cancelBtn{
-  width:100%;
-  border:1px solid #cbd5e1;
-  background:white;
-  color:#334155;
-  border-radius:14px;
-  padding:14px;
-  margin-top:9px;
-  font-size:16px;
-  font-weight:800;
-}
-
-.warning{
-  margin-top:10px;
-  padding:10px;
-  background:#fff7ed;
-  color:#9a3412;
-  border-radius:10px;
-  display:none;
-}
 </style>
 </head>
-
 <body>
-
-<div class="page">
 <div class="app">
-
-<div class="header">
-  <div class="jp">JP</div>
-  <h1>沖繩代購</h1>
-  <div class="version">
-    PWA V2.3｜建立訂單＋採買＋跨手機同步
+<header>
+  <div class="top">
+    <div class="brand">🇯🇵 沖繩代購</div>
+    <div id="sync" class="sync">⟳ 連線中…</div>
   </div>
-</div>
-
-
-<!-- 建立訂單 -->
-
-<div class="card">
-
-  <div class="sectionTitle">📝 建立訂單</div>
-
-  <label>🙋 操作人</label>
-
-  <div class="userButtons">
-    <button id="user秉謙" class="userBtn"
-      onclick="selectUser('秉謙')">秉謙</button>
-
-    <button id="user孟欣" class="userBtn"
-      onclick="selectUser('孟欣')">孟欣</button>
+  <div class="user">
+    <button class="who" data-u="秉謙" title="點選後此裝置會記住">👨 秉謙</button>
+    <button class="who" data-u="孟欣" title="點選後此裝置會記住">👩 孟欣</button>
+    <button class="pill" onclick="loadData(true)">🔄 更新</button>
   </div>
-
-  <label>👤 顧客</label>
-  <input id="customer" placeholder="輸入顧客姓名">
-
-  <label>🛍 商品</label>
-  <input id="product" placeholder="輸入商品名稱">
-
-  <label>🔢 數量</label>
-  <input id="qty" type="number" min="1" value="1"
-    oninput="updateTotal()">
-
-  <label>🇯🇵 日幣售價／件</label>
-  <input id="price" type="number" min="0" value="0">
-
-  <label>🇹🇼 代購台幣售價／件</label>
-  <input id="twdPrice" type="number" min="0" value="0"
-    oninput="updateTotal()">
-
-  <div class="totalBox">
-    <div class="totalLabel">💰 訂單台幣總額</div>
-    <div id="twdTotal" class="totalValue">NT$0</div>
+  <div class="row" style="margin-top:9px">
+    <span class="small">💱 1 JPY =</span>
+    <input id="fx" type="number" step=".001" style="width:90px;padding:7px" oninput="updatePriceHints()">
+    <span class="small">TWD</span>
+    <button class="pill" onclick="saveRate()">儲存</button>
   </div>
+  <div class="version" id="version">前端 V3.0</div>
+  <div class="version" id="countInfo" style="font-weight:800;color:#374151">訂單 0｜採買紀錄 0</div><div class="error" id="errorBox"></div>
+</header>
 
-  <button id="createBtn" class="mainBtn"
-    onclick="createOrder()">
-    ➕ 建立訂單
-  </button>
-
-  <div id="createStatus" class="status">
-    尚未建立訂單
-  </div>
-
-</div>
-
-
-<!-- 採買清單 -->
-
-<div class="card">
-
-  <div class="sectionTitle">🛒 採買清單</div>
-
-  <div id="buyList">
-    <div class="empty">正在等待同步…</div>
-  </div>
-
-</div>
-
-
-<!-- 同步 -->
-
-<div class="card">
-
-  <button id="syncBtn"
-    class="mainBtn syncBtn"
-    onclick="loadData()">
-    🔄 同步最新資料
-  </button>
-
-  <div id="syncStatus" class="status">
-    尚未同步
-  </div>
-
-</div>
-
-
-<!-- 摘要 -->
-
-<div class="card">
-
-  <div class="sectionTitle">📊 同步摘要</div>
-
-  <div class="summary">
-
-    <div class="summaryBox">
-      <div class="summaryLabel">📋 訂單</div>
-      <div id="orderCount" class="summaryValue">-</div>
+<main>
+<section id="order" class="screen on">
+  <h2>➕ 喊單</h2>
+  <div class="lead">日幣售價＝現場採買價格；代購台幣售價＝實際對客售價。兩者獨立，藍字僅供匯率換算參考。可直接叫出手機原生相機拍照，也可從相簿選擇照片。</div>
+  <div class="card">
+    <label>顧客</label><input id="customer">
+    <label>商品</label><input id="product">
+    <div class="grid">
+      <div><label>數量</label><input id="qty" type="number" value="1"></div>
+      <div>
+        <label>日幣售價 ¥ / 件</label>
+        <input id="price" type="number" value="1500" oninput="updatePriceHints()">
+        <div id="jpyToTwdHint" style="font-size:12px;color:#2563eb;margin-top:5px">約 NT$300 / 件</div>
+      </div>
     </div>
+    <label style="margin-top:10px">代購台幣售價 NT$ / 件</label>
+    <input id="twdPrice" type="number" value="300" oninput="updatePriceHints()">
+    <div id="twdToJpyHint" style="font-size:12px;color:#2563eb;margin-top:5px">約 ¥1,500 / 件</div>
 
-    <div class="summaryBox">
-      <div class="summaryLabel">🛒 採買紀錄</div>
-      <div id="purchaseCount" class="summaryValue">-</div>
+    <label style="margin-top:14px">📷 商品照片</label>
+    <div class="photoBox">
+      <div style="font-size:36px">🖼️</div>
+      <div style="font-weight:900;margin-top:3px">新增商品照片</div>
+      <div class="small" style="margin-top:4px">可直接拍照，或從相簿選擇</div>
+      <div class="photoActions">
+        <button type="button" class="photoBtn photoCamera" onclick="openNativeCamera()">📷 直接拍照</button>
+        <button type="button" class="photoBtn photoGallery" onclick="el('galleryInput').click()">🖼️ 從相簿選</button>
+      </div>
+      <div class="small" style="margin-top:8px;color:#6f7782">「直接拍照」會交由手機原生相機處理，拍完會自動回到喊單頁預覽。</div>
+      <input id="cameraFallbackInput" type="file" accept="image/*" capture="environment" style="display:none" onchange="selectOrderPhoto(this)">
+      <input id="galleryInput" type="file" accept="image/*" style="display:none" onchange="selectOrderPhoto(this)">
+      <div class="photoPreview" id="orderPhotoPreview">
+        <img id="orderPhotoPreviewImg" alt="商品照片預覽">
+        <div class="row" style="margin-top:8px">
+          <span class="small">✅ 已選擇照片</span>
+          <button type="button" class="pill" onclick="clearOrderPhoto()">移除</button>
+        </div>
+      </div>
     </div>
-
-    <div class="summaryBox">
-      <div class="summaryLabel">💱 目前匯率</div>
-      <div id="rate" class="summaryValue">-</div>
+    <div class="grid" style="display:none">
     </div>
-
-    <div class="summaryBox">
-      <div class="summaryLabel">⚙️ 後端版本</div>
-      <div id="backendVersion" class="summaryValue">-</div>
-    </div>
-
   </div>
+  <button class="btn primary" onclick="createOrder()">建立喊單並同步</button>
+</section>
 
-  <div id="syncTime" class="syncTime"></div>
+<section id="buy" class="screen">
+  <h2>🛒 採買</h2>
+  <div class="lead">需求會由所有「有效訂單」即時計算。</div>
 
-</div>
-
-
-<!-- 訂單 -->
-
-<div class="card">
-
-  <div class="sectionTitle">
-    📋 Google Sheet 現有訂單
-  </div>
-
-  <div id="orderList">
-    <div class="empty">正在等待同步…</div>
-  </div>
-
-</div>
-
-</div>
-</div>
-
-
-<!-- 採買 Modal -->
-
-<div id="buyModal" class="modal">
-
-<div class="modalSheet">
-
-  <div class="modalTitle">
-    🛒 登記採買
-  </div>
-
-  <div id="buyProductName" class="modalSub"></div>
-
-  <div id="buyNeedInfo" class="status"></div>
-
-  <label>🙋 採買人</label>
-
-  <div class="userButtons">
-    <button id="buyUser秉謙"
-      class="userBtn"
-      onclick="selectUser('秉謙')">
-      秉謙
+  <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px">
+    <button type="button" onclick="toggleProfit()" style="width:100%;border:0;background:#fff;padding:14px;display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:16px;text-align:left">
+      <span>📊 即時損益</span>
+      <span id="profitArrow">▼</span>
     </button>
-
-    <button id="buyUser孟欣"
-      class="userBtn"
-      onclick="selectUser('孟欣')">
-      孟欣
-    </button>
+    <div id="profitWrap" style="display:none;border-top:1px solid #eee;padding:12px">
+      <div id="profitCard"></div>
+    </div>
   </div>
 
-  <label>🔢 本次採買數量</label>
-  <input id="buyQty"
-    type="number"
-    min="1"
-    value="1"
-    oninput="checkOverBuy()">
+  <div class="card" style="padding:10px;margin-bottom:10px">
+    <input id="purchaseSearch" placeholder="🔎 搜尋商品" oninput="renderBuy()">
+    <div class="actions" style="margin-top:8px">
+      <button id="bfTodo" class="mini primary" onclick="setBuyFilter('todo')">待採買</button>
+      <button id="bfDone" class="mini ghost" onclick="setBuyFilter('done')">已完成</button>
+      <button id="bfAll" class="mini ghost" onclick="setBuyFilter('all')">全部</button>
+    </div>
+    <div id="buyCount" class="small" style="margin-top:8px;font-weight:800"></div>
+  </div>
 
-  <div id="overBuyWarning" class="warning"></div>
+  <div id="buyList"></div>
+</section>
 
-  <label>💴 實際總成本 ¥</label>
-  <input id="buyCost"
-    type="number"
-    min="0"
-    value="0">
+<section id="pay" class="screen">
+  <h2>💰 收款</h2>
+  <div class="lead">一鍵切換已收／未收。</div>
+  <div class="card" style="padding:10px;margin-bottom:10px">
+    <input id="paySearch" placeholder="🔎 搜尋顧客或商品" oninput="renderPay()">
+    <div class="actions" style="margin-top:8px">
+      <button id="pfUnpaid" class="mini primary" onclick="setPayFilter('unpaid')">未收款</button>
+      <button id="pfPaid" class="mini ghost" onclick="setPayFilter('paid')">已收款</button>
+      <button id="pfAll" class="mini ghost" onclick="setPayFilter('all')">全部</button>
+    </div>
+    <div id="payCount" class="small" style="margin-top:8px;font-weight:800"></div>
+  </div>
+  <div id="payList"></div>
+</section>
 
-  <label>🏬 店家／備註</label>
-  <input id="buyNote"
-    placeholder="例如：國際通、唐吉訶德">
+<section id="list" class="screen">
+  <h2>📋 訂單</h2>
+  <div class="lead">編輯、取消、恢復、查看異動紀錄。</div>
+  <div class="card" style="padding:10px;margin-bottom:10px">
+    <input id="orderSearch" placeholder="🔎 搜尋訂單ID、顧客或商品" oninput="renderOrders()">
+    <div class="actions" style="margin-top:8px">
+      <button id="ofActive" class="mini primary" onclick="setOrderFilter('active')">有效</button>
+      <button id="ofCancelled" class="mini ghost" onclick="setOrderFilter('cancelled')">已取消</button>
+      <button id="ofAll" class="mini ghost" onclick="setOrderFilter('all')">全部</button>
+    </div>
+    <div id="orderCount" class="small" style="margin-top:8px;font-weight:800"></div>
+  </div>
+  <div id="orderList"></div>
+</section>
+</main>
 
-  <button id="saveBuyBtn"
-    class="mainBtn"
-    onclick="savePurchase()">
-    ✅ 確認採買
-  </button>
-
-  <button class="cancelBtn"
-    onclick="closeBuyModal()">
-    取消
-  </button>
-
-  <div id="buyStatus"></div>
-
+<nav class="bottom">
+  <button class="nav on" data-go="order"><b>➕</b>喊單</button>
+  <button class="nav" data-go="buy"><b>🛒</b>採買</button>
+  <button class="nav" data-go="pay"><b>💰</b>收款</button>
+  <button class="nav" data-go="list"><b>📋</b>訂單</button>
+</nav>
 </div>
+
+<div class="modal" id="m">
+  <div class="sheet">
+    <div id="mc"></div>
+    <button class="btn ghost" style="margin-top:10px" onclick="closeM()">關閉</button>
+  </div>
 </div>
 
+
+<div id="identityOverlay" class="identityOverlay">
+  <div class="identityCard">
+    <div class="identityTitle">👋 這支手機是誰在使用？</div>
+    <div class="identitySub">
+      第一次選擇後，這支裝置會自動記住。<br>
+      之後仍可從上方頭像隨時切換。
+    </div>
+    <div class="identityChoices">
+      <button type="button" class="identityChoice" onclick="chooseIdentity('秉謙')">👨<br>秉謙</button>
+      <button type="button" class="identityChoice" onclick="chooseIdentity('孟欣')">👩<br>孟欣</button>
+    </div>
+    <div class="deviceHint">此設定只記在目前這支手機／瀏覽器，不會影響另一支手機。</div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
+var user = '';
+var data = {orders:[], purchases:[], history:[], rate:0.210, version:'', summary:{}};
+var orderPhotoDataUrl = '';
 
-const API_URL =
-'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
+function el(id){ return document.getElementById(id); }
 
-let currentUser =
-  localStorage.getItem('okinawa_v2_user') || '';
+var USER_MEMORY_KEY = 'okinawa_proxy_current_user_v1';
 
-let currentData = {
-  orders:[],
-  purchases:[]
-};
-
-let currentBuyProduct = '';
-let currentBuyLeft = 0;
-
-
-/* =========================
-   使用者
-========================= */
-
-function selectUser(user){
-
-  currentUser=user;
-
-  localStorage.setItem(
-    'okinawa_v2_user',
-    user
-  );
-
-  document.querySelectorAll('.userBtn')
-    .forEach(function(btn){
-      btn.classList.remove('active');
-    });
-
-  ['user'+user,'buyUser'+user]
-    .forEach(function(id){
-      const el=document.getElementById(id);
-      if(el) el.classList.add('active');
-    });
+function readCookie(name){
+  var prefix = name + '=';
+  var parts = document.cookie ? document.cookie.split(';') : [];
+  for(var i=0;i<parts.length;i++){
+    var p = parts[i].trim();
+    if(p.indexOf(prefix) === 0){
+      try { return decodeURIComponent(p.substring(prefix.length)); }
+      catch(e){ return p.substring(prefix.length); }
+    }
+  }
+  return '';
 }
 
+function getSavedUser(){
+  var saved = '';
+  try {
+    saved = localStorage.getItem(USER_MEMORY_KEY) || '';
+  } catch(e) {}
 
-function restoreUser(){
+  if(!saved){
+    saved = readCookie(USER_MEMORY_KEY);
+  }
+
+  return (saved === '秉謙' || saved === '孟欣') ? saved : '';
+}
+
+function saveUserToDevice(name){
+  try {
+    localStorage.setItem(USER_MEMORY_KEY, name);
+  } catch(e) {}
+
+  try {
+    document.cookie = USER_MEMORY_KEY + '=' + encodeURIComponent(name) +
+      '; max-age=31536000; path=/; SameSite=Lax';
+  } catch(e2) {}
+}
+
+function paintCurrentUser(){
+  document.querySelectorAll('.who').forEach(function(btn){
+    btn.classList.toggle('on', btn.getAttribute('data-u') === user);
+  });
+}
+
+function setCurrentUser(name, remember, showToast){
+  if(name !== '秉謙' && name !== '孟欣') return;
+
+  user = name;
+  paintCurrentUser();
+
+  if(remember){
+    saveUserToDevice(name);
+  }
+
+  var overlay = el('identityOverlay');
+  if(overlay) overlay.classList.remove('on');
+
+  if(showToast){
+    toast('操作人：' + user + '（此裝置已記住）');
+  }
+}
+
+function chooseIdentity(name){
+  setCurrentUser(name, true, true);
+}
+
+function initDeviceUser(){
+  var saved = getSavedUser();
+
+  if(saved){
+    setCurrentUser(saved, false, false);
+  } else {
+    user = '';
+    paintCurrentUser();
+    var overlay = el('identityOverlay');
+    if(overlay) overlay.classList.add('on');
+  }
+}
+
+function yen(n){ return '¥' + Math.round(Number(n)||0).toLocaleString(); }
+function twd(n){ return 'NT$' + Math.round((Number(n)||0) * (Number(data.rate)||0.210)).toLocaleString(); }
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+function jsq(s){
+  return String(s == null ? '' : s)
+    .replace(/\\/g,'\\\\')
+    .replace(/'/g,"\\'");
+}
+function setSync(text, bad){
+  el('sync').textContent = text;
+  el('sync').style.color = bad ? '#b91c1c' : '#17864b';
+}
+function showError(text){
+  var box = el('errorBox');
+  if(!text){
+    box.style.display = 'none';
+    box.textContent = '';
+    return;
+  }
+  box.style.display = 'block';
+  box.textContent = text;
+}
+function toast(t){
+  el('toast').textContent = t;
+  el('toast').style.display = 'block';
+  setTimeout(function(){ el('toast').style.display = 'none'; }, 1300);
+}
+function failure(err){
+  var msg = '';
+  if(typeof err === 'string') msg = err;
+  else if(err && err.message) msg = err.message;
+  else msg = String(err || '未知錯誤');
+
+  setSync('同步失敗');
 
   if(
-    currentUser==='秉謙' ||
-    currentUser==='孟欣'
+    msg.indexOf('Google Drive 尚未完成授權') >= 0 ||
+    msg.indexOf('DriveApp') >= 0 ||
+    msg.indexOf('drive.readonly') >= 0
   ){
-    selectUser(currentUser);
+    el('errorBox').innerHTML =
+      '<b>📷 Google Drive 尚未授權</b><br>' +
+      '請回到 Apps Script 執行 <b>authorizeDriveAccess</b> 一次，完成 Google 授權後再回 APP 重試。';
+    el('errorBox').style.display = 'block';
+    return;
   }
+
+  el('errorBox').textContent = '連線錯誤：' + msg;
+  el('errorBox').style.display = 'block';
 }
+function applyData(x){
+  if(!x || !x.ok){
+    failure('後端沒有回傳有效資料');
+    return;
+  }
 
+  data = x;
+  if(!Array.isArray(data.orders)) data.orders = [];
+  if(!Array.isArray(data.purchases)) data.purchases = [];
+  if(!Array.isArray(data.history)) data.history = [];
+  data.rate = Number(data.rate) || 0.210;
 
-/* =========================
-   訂單金額
-========================= */
+  el('fx').value = data.rate.toFixed(3);
+  el('version').textContent = '前端 V3.0｜後端 V' + (data.version || '?') +
+    (data.syncedAt ? '｜' + data.syncedAt : '');
 
-function updateTotal(){
-
-  const qty=
-    Number(document.getElementById('qty').value)||0;
-
-  const twd=
-    Number(document.getElementById('twdPrice').value)||0;
-
-  document.getElementById('twdTotal').textContent=
-    'NT$'+Math.round(qty*twd).toLocaleString('zh-TW');
+  setSync('☁ 已同步', false);
+  showError('');
+  el('countInfo').textContent = '訂單 ' + data.orders.length + '｜採買紀錄 ' + data.purchases.length;
+  updatePriceHints();
+  render();
 }
+var API_URL = 'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
 
-
-/* =========================
-   API
-========================= */
-
-async function apiRequest(action,payload){
-
-  const response=await fetch(API_URL,{
-    method:'POST',
-
-    headers:{
-      'Content-Type':'text/plain;charset=utf-8'
-    },
-
-    body:JSON.stringify({
-      v2:true,
-      action:action,
-      payload:payload||{}
-    }),
-
-    redirect:'follow'
-  });
-
-  const text=await response.text();
-
-  let data;
-
+async function callApi(action, payload, done){
+  setSync('⟳ 同步中…', false);
+  showError('');
   try{
-    data=JSON.parse(text);
-  }catch(e){
-    throw new Error(
-      '伺服器回傳內容不是有效 JSON'
-    );
-  }
-
-  if(!data || data.ok!==true){
-    throw new Error(
-      data && data.message
-        ? data.message
-        : 'API 執行失敗'
-    );
-  }
-
-  return data;
-}
-
-
-/* =========================
-   建立訂單
-========================= */
-
-async function createOrder(){
-
-  const status=
-    document.getElementById('createStatus');
-
-  const btn=
-    document.getElementById('createBtn');
-
-  const customer=
-    document.getElementById('customer').value.trim();
-
-  const product=
-    document.getElementById('product').value.trim();
-
-  const qty=
-    Number(document.getElementById('qty').value);
-
-  const price=
-    Number(document.getElementById('price').value);
-
-  const twdPrice=
-    Number(document.getElementById('twdPrice').value);
-
-
-  if(!currentUser){
-    showCreateError('請先選擇操作人');
-    return;
-  }
-
-  if(!customer){
-    showCreateError('請輸入顧客');
-    return;
-  }
-
-  if(!product){
-    showCreateError('請輸入商品');
-    return;
-  }
-
-  if(!Number.isFinite(qty)||qty<=0){
-    showCreateError('數量必須大於 0');
-    return;
-  }
-
-  if(!Number.isFinite(price)||price<0){
-    showCreateError('請確認日幣售價');
-    return;
-  }
-
-  if(!Number.isFinite(twdPrice)||twdPrice<0){
-    showCreateError('請確認台幣售價');
-    return;
-  }
-
-
-  btn.disabled=true;
-  btn.textContent='⟳ 正在建立訂單…';
-
-  status.className='status';
-  status.textContent='正在寫入 Google Sheets…';
-
-
-  try{
-
-    const data=await apiRequest(
-      'createOrder',
-      {
-        user:currentUser,
-        customer:customer,
-        product:product,
-        qty:qty,
-        price:price,
-        twdPrice:twdPrice
-      }
-    );
-
-    renderData(data);
-
-    status.className='status success';
-    status.innerHTML=
-      '<strong>✅ 訂單建立成功</strong><br>'+
-      'Google Sheets 已更新，畫面也已取得最新資料。';
-
-    document.getElementById('customer').value='';
-    document.getElementById('product').value='';
-    document.getElementById('qty').value=1;
-    document.getElementById('price').value=0;
-    document.getElementById('twdPrice').value=0;
-
-    updateTotal();
-
-  }catch(error){
-
-    showCreateError(error.message);
-
-  }finally{
-
-    btn.disabled=false;
-    btn.textContent='➕ 建立訂單';
-  }
-}
-
-
-function showCreateError(message){
-
-  const status=
-    document.getElementById('createStatus');
-
-  status.className='status error';
-
-  status.innerHTML=
-    '<strong>❌ 無法建立訂單</strong><br>'+
-    escapeHtml(message);
-}
-
-
-/* =========================
-   同步
-========================= */
-
-async function loadData(){
-
-  const btn=document.getElementById('syncBtn');
-  const status=document.getElementById('syncStatus');
-
-  btn.disabled=true;
-  btn.textContent='⟳ 正在同步…';
-
-  status.className='status';
-  status.textContent='正在取得 Google Sheets 最新資料…';
-
-  try{
-
-    const data=await apiRequest('getData',{});
-
-    renderData(data);
-
-    status.className='status success';
-
-    status.innerHTML=
-      '<strong>✅ Google Sheets 同步成功</strong><br>'+
-      '目前資料已更新。';
-
-  }catch(error){
-
-    status.className='status error';
-
-    status.innerHTML=
-      '<strong>❌ 同步失敗</strong><br>'+
-      escapeHtml(error.message);
-
-  }finally{
-
-    btn.disabled=false;
-    btn.textContent='🔄 同步最新資料';
-  }
-}
-
-
-/* =========================
-   資料顯示
-========================= */
-
-function renderData(data){
-
-  currentData=data||{};
-
-  const orders=
-    Array.isArray(data.orders)
-      ? data.orders
-      : [];
-
-  const purchases=
-    Array.isArray(data.purchases)
-      ? data.purchases
-      : [];
-
-  currentData.orders=orders;
-  currentData.purchases=purchases;
-
-  document.getElementById('orderCount').textContent=
-    orders.length+' 筆';
-
-  document.getElementById('purchaseCount').textContent=
-    purchases.length+' 筆';
-
-  document.getElementById('rate').textContent=
-    Number(data.rate||0).toFixed(3);
-
-  document.getElementById('backendVersion').textContent=
-    data.version||'?';
-
-  document.getElementById('syncTime').textContent=
-    '☁ 最後同步：'+
-    (data.syncedAt || new Date().toLocaleString('zh-TW'));
-
-  renderBuyList();
-  renderOrders(orders);
-}
-
-
-/* =========================
-   商品彙整
-========================= */
-
-function aggregateProducts(){
-
-  const map={};
-
-  currentData.orders.forEach(function(o){
-
-    const cancelled=
-      o.cancelled===true ||
-      o.status==='已取消';
-
-    if(cancelled) return;
-
-    const product=String(o.product||'').trim();
-
-    if(!product) return;
-
-    if(!map[product]){
-      map[product]={
-        product:product,
-        need:0,
-        bought:0
-      };
-    }
-
-    map[product].need+=Number(o.qty)||0;
-  });
-
-
-  currentData.purchases.forEach(function(p){
-
-    const product=String(p.product||'').trim();
-
-    if(!product) return;
-
-    if(!map[product]){
-      map[product]={
-        product:product,
-        need:0,
-        bought:0
-      };
-    }
-
-    /*
-      舊版邏輯：
-      缺貨不算實際購買數量。
-    */
-
-    if(p.status!=='缺貨'){
-      map[product].bought+=Number(p.qty)||0;
-    }
-  });
-
-
-  return Object.values(map)
-    .map(function(x){
-
-      x.left=Math.max(
-        0,
-        x.need-x.bought
-      );
-
-      return x;
-    })
-    .sort(function(a,b){
-
-      if(a.left>0 && b.left===0) return -1;
-      if(a.left===0 && b.left>0) return 1;
-
-      return a.product.localeCompare(
-        b.product,
-        'zh-Hant'
-      );
+    var r = await fetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({v2:true,action:action,payload:payload||{}}),
+      redirect:'follow'
     });
+    var text = await r.text();
+    var x;
+    try{x=JSON.parse(text);}catch(e){throw new Error('伺服器回傳不是有效 JSON');}
+    if(!x || x.ok!==true) throw new Error((x&&x.message)||'API 執行失敗');
+    applyData(x);
+    if(done) done(x);
+  }catch(err){ failure(err); }
+}
+function loadData(showToast){
+  callApi('getData', {}, function(){
+    if(showToast) toast('已取得最新資料');
+  });
+}
+function payload(base){
+  base = base || {};
+
+  if(!user){
+    var overlay = el('identityOverlay');
+    if(overlay) overlay.classList.add('on');
+    throw new Error('請先選擇操作人');
+  }
+
+  base.user = user;
+  return base;
 }
 
+document.querySelectorAll('.who').forEach(function(b){
+  b.onclick = function(){
+    setCurrentUser(b.getAttribute('data-u'), true, true);
+  };
+});
 
-/* =========================
-   採買清單
-========================= */
+document.querySelectorAll('.nav').forEach(function(b){
+  b.onclick = function(){
+    document.querySelectorAll('.nav').forEach(function(x){
+      x.classList.toggle('on', x === b);
+    });
+    document.querySelectorAll('.screen').forEach(function(x){
+      x.classList.toggle('on', x.id === b.getAttribute('data-go'));
+    });
+    render();
+    loadData(false);
+  };
+});
 
-function renderBuyList(){
+function openNativeCamera(){
+  // 直接交給手機原生相機處理，避免 Apps Script iframe / 內建瀏覽器
+  // 對 getUserMedia 的權限限制。
+  var input = el('cameraFallbackInput');
+  if(!input){
+    failure('找不到系統相機輸入元件');
+    return;
+  }
+  input.value = '';
+  input.click();
+}
 
-  const box=document.getElementById('buyList');
+var cameraStream = null;
 
-  const items=aggregateProducts();
+function startCamera(){
+  var overlay = el('cameraOverlay');
+  var msg = el('cameraMsg');
+  overlay.classList.add('on');
+  msg.textContent = '正在開啟相機…';
 
-  if(!items.length){
-
-    box.innerHTML=
-      '<div class="empty">目前沒有需要採買的商品。</div>';
-
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    msg.textContent = '此瀏覽器不支援直接開啟相機，請改用「系統相機」。';
     return;
   }
 
-  box.innerHTML=items.map(function(x){
-
-    const finished=x.left<=0;
-
-    return `
-      <div class="buyItem ${finished?'buyDone':''}">
-
-        <div class="buyTitle">
-          ${escapeHtml(x.product)}
-        </div>
-
-        <div class="buyStats">
-
-          <div class="stat">
-            <div class="statLabel">訂購</div>
-            <div class="statValue">
-              ${numberText(x.need)}
-            </div>
-          </div>
-
-          <div class="stat">
-            <div class="statLabel">已購</div>
-            <div class="statValue">
-              ${numberText(x.bought)}
-            </div>
-          </div>
-
-          <div class="stat ${finished?'done':'need'}">
-            <div class="statLabel">尚缺</div>
-            <div class="statValue">
-              ${numberText(x.left)}
-            </div>
-          </div>
-
-        </div>
-
-        ${
-          finished
-
-          ? `<button class="buyBtn" disabled>
-               ✅ 已買齊
-             </button>`
-
-          : `<button class="buyBtn"
-               onclick='openBuyModal(${JSON.stringify(x.product)},${x.left})'>
-               🛒 登記採買
-             </button>`
-        }
-
-      </div>
-    `;
-
-  }).join('');
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: { ideal: 'environment' } },
+    audio: false
+  }).then(function(stream){
+    cameraStream = stream;
+    el('cameraVideo').srcObject = stream;
+    msg.textContent = '將商品置於畫面中央後按下快門';
+  }).catch(function(err){
+    msg.textContent = '無法取得相機權限。請允許相機權限，或改用「系統相機」。';
+  });
 }
 
-
-/* =========================
-   打開採買
-========================= */
-
-function openBuyModal(product,left){
-
-  currentBuyProduct=product;
-  currentBuyLeft=Number(left)||0;
-
-  document.getElementById('buyProductName').textContent=
-    '商品：'+product;
-
-  document.getElementById('buyNeedInfo').innerHTML=
-    '目前尚缺 <strong>'+
-    numberText(currentBuyLeft)+
-    '</strong> 件';
-
-  document.getElementById('buyQty').value=
-    currentBuyLeft>0 ? 1 : 0;
-
-  document.getElementById('buyCost').value=0;
-  document.getElementById('buyNote').value='';
-
-  document.getElementById('buyStatus').innerHTML='';
-
-  document.getElementById('overBuyWarning').style.display=
-    'none';
-
-  restoreUser();
-
-  document.getElementById('buyModal')
-    .classList.add('open');
-}
-
-
-function closeBuyModal(){
-
-  document.getElementById('buyModal')
-    .classList.remove('open');
-
-  currentBuyProduct='';
-  currentBuyLeft=0;
-}
-
-
-/* =========================
-   超買提醒
-========================= */
-
-function checkOverBuy(){
-
-  const qty=
-    Number(document.getElementById('buyQty').value)||0;
-
-  const box=
-    document.getElementById('overBuyWarning');
-
-  if(qty>currentBuyLeft){
-
-    box.style.display='block';
-
-    box.textContent=
-      '⚠️ 目前尚缺 '+currentBuyLeft+
-      ' 件，本次輸入 '+qty+
-      ' 件，會多買 '+(qty-currentBuyLeft)+' 件。';
-
-  }else{
-
-    box.style.display='none';
+function stopCamera(){
+  if(cameraStream){
+    cameraStream.getTracks().forEach(function(track){ track.stop(); });
+    cameraStream = null;
   }
+  if(el('cameraVideo')) el('cameraVideo').srcObject = null;
+  if(el('cameraOverlay')) el('cameraOverlay').classList.remove('on');
 }
 
+function useCameraFallback(){
+  stopCamera();
+  el('cameraFallbackInput').click();
+}
 
-/* =========================
-   儲存採買
-========================= */
-
-async function savePurchase(){
-
-  const btn=
-    document.getElementById('saveBuyBtn');
-
-  const status=
-    document.getElementById('buyStatus');
-
-  const qty=
-    Number(document.getElementById('buyQty').value);
-
-  const cost=
-    Number(document.getElementById('buyCost').value);
-
-  const note=
-    document.getElementById('buyNote').value.trim();
-
-
-  if(!currentUser){
-
-    showBuyError('請先選擇採買人');
+function takePhoto(){
+  var video = el('cameraVideo');
+  if(!video || !video.videoWidth){
+    el('cameraMsg').textContent = '相機尚未準備好，請稍等一下，或使用「系統相機」。';
     return;
   }
 
-  if(!currentBuyProduct){
+  var maxSide = 1280;
+  var w = video.videoWidth;
+  var h = video.videoHeight;
 
-    showBuyError('沒有選擇商品');
-    return;
+  if(w > maxSide || h > maxSide){
+    var ratio = Math.min(maxSide / w, maxSide / h);
+    w = Math.round(w * ratio);
+    h = Math.round(h * ratio);
   }
 
-  if(!Number.isFinite(qty)||qty<=0){
+  var canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  canvas.getContext('2d').drawImage(video, 0, 0, w, h);
 
-    showBuyError('採買數量必須大於 0');
-    return;
-  }
+  orderPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.82);
+  el('orderPhotoPreviewImg').src = orderPhotoDataUrl;
+  el('orderPhotoPreview').style.display = 'block';
 
-  if(!Number.isFinite(cost)||cost<0){
+  stopCamera();
+  setSync('已同步');
+}
 
-    showBuyError('請確認實際總成本');
-    return;
-  }
+function fileToCompressedDataUrl(file, done, fail){
+  if(!file){ done(''); return; }
+  if(!/^image\//.test(file.type || '')){ fail('請選擇圖片檔'); return; }
 
-
-  /*
-    如果買超過尚缺數量，
-    再確認一次。
-  */
-
-  if(qty>currentBuyLeft){
-
-    const ok=confirm(
-      '目前尚缺 '+currentBuyLeft+
-      ' 件。\n\n'+
-      '本次輸入 '+qty+
-      ' 件，會多買 '+(qty-currentBuyLeft)+
-      ' 件。\n\n確定要繼續嗎？'
-    );
-
-    if(!ok) return;
-  }
-
-
-  btn.disabled=true;
-  btn.textContent='⟳ 正在寫入採買紀錄…';
-
-  status.className='status';
-  status.textContent='正在更新 Google Sheets…';
-
-
-  try{
-
-    const data=await apiRequest(
-      'recordPurchase',
-      {
-        user:currentUser,
-        product:currentBuyProduct,
-        qty:qty,
-        cost:cost,
-        note:note
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var maxSide = 1280;
+      var w = img.width, h = img.height;
+      if(w > maxSide || h > maxSide){
+        var ratio = Math.min(maxSide / w, maxSide / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
       }
-    );
 
-    /*
-      API 已回傳最新 Google Sheets 資料。
-    */
+      var canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      done(canvas.toDataURL('image/jpeg', 0.82));
+    };
+    img.onerror = function(){ fail('照片讀取失敗'); };
+    img.src = e.target.result;
+  };
+  reader.onerror = function(){ fail('照片讀取失敗'); };
+  reader.readAsDataURL(file);
+}
 
-    renderData(data);
+function selectOrderPhoto(input){
+  var file = input.files && input.files[0];
+  if(!file) return;
 
-    status.className='status success';
+  setSync('照片處理中…');
+  fileToCompressedDataUrl(file, function(dataUrl){
+    orderPhotoDataUrl = dataUrl;
+    el('orderPhotoPreviewImg').src = dataUrl;
+    el('orderPhotoPreview').style.display = 'block';
+    setSync('已同步');
+  }, function(msg){
+    failure(msg);
+  });
+}
 
-    status.innerHTML=
-      '<strong>✅ 採買紀錄建立成功</strong><br>'+
-      'Google Sheets 已更新。';
+function clearOrderPhoto(){
+  orderPhotoDataUrl = '';
+  if(el('cameraFallbackInput')) el('cameraFallbackInput').value = '';
+  if(el('galleryInput')) el('galleryInput').value = '';
+  if(el('orderPhotoPreview')) el('orderPhotoPreview').style.display = 'none';
+  if(el('orderPhotoPreviewImg')) el('orderPhotoPreviewImg').src = '';
+}
 
-    /*
-      稍微停一下，讓使用者看到成功訊息。
-    */
+function productPhoto(product){
+  var found = data.orders.find(function(o){
+    return !o.cancelled && o.product === product && o.photoUrl;
+  });
+  return found ? found.photoUrl : '';
+}
 
-    setTimeout(function(){
-      closeBuyModal();
-    },700);
+function openPhoto(url){
+  if(!url) return;
+  openM('<h3>📷 商品照片</h3><img src="' + esc(url) + '" style="width:100%;max-height:70vh;object-fit:contain;border-radius:14px;background:#f7f7f7">');
+}
 
-  }catch(error){
+function updatePriceHints(){
+  var rate = Number(el('fx').value) || Number(data.rate) || 0.210;
+  var jpyPrice = Number(el('price').value) || 0;
+  var twdPrice = Number(el('twdPrice').value) || 0;
 
-    showBuyError(error.message);
+  if(el('jpyToTwdHint')){
+    el('jpyToTwdHint').textContent = '台幣換算：約 NT$' +
+      Math.round(jpyPrice * rate).toLocaleString() + ' / 件';
+  }
 
-  }finally{
-
-    btn.disabled=false;
-    btn.textContent='✅ 確認採買';
+  if(el('twdToJpyHint')){
+    var jpy = rate > 0 ? Math.round(twdPrice / rate) : 0;
+    el('twdToJpyHint').textContent = '日幣換算：約 ¥' +
+      jpy.toLocaleString() + ' / 件';
   }
 }
 
+function createOrder(){
+  var customer = el('customer').value.trim();
+  var product = el('product').value.trim();
+  var qty = Number(el('qty').value);
+  var price = Number(el('price').value);
 
-function showBuyError(message){
-
-  const status=
-    document.getElementById('buyStatus');
-
-  status.className='status error';
-
-  status.innerHTML=
-    '<strong>❌ 無法記錄採買</strong><br>'+
-    escapeHtml(message);
-}
-
-
-/* =========================
-   訂單列表
-========================= */
-
-function renderOrders(orders){
-
-  const box=document.getElementById('orderList');
-
-  if(!orders.length){
-
-    box.innerHTML=
-      '<div class="empty">目前沒有訂單。</div>';
-
+  if(!customer || !product){
+    alert('請輸入顧客與商品');
     return;
   }
 
-  const arr=orders.slice().reverse();
+  callApi('createOrder', payload({
+    customer: customer,
+    product: product,
+    qty: qty,
+    price: price,
+    twdPrice: Number(el('twdPrice').value),
+    photoDataUrl: orderPhotoDataUrl
+  }), function(){
+    el('customer').value = '';
+    el('product').value = '';
+    clearOrderPhoto();
+    toast('喊單完成，採買需求已更新');
+  });
+}
 
-  box.innerHTML=arr.map(function(order){
+function saveRate(){
+  callApi('setRate', payload({rate:Number(el('fx').value)}), function(){
+    toast('匯率已更新');
+  });
+}
 
-    const cancelled=
-      order.cancelled===true ||
-      order.status==='已取消';
+function aggregate(){
+  var a = {};
 
-    const id=order.id||'';
-    const customer=order.customer||'';
-    const product=order.product||'';
-    const qty=Number(order.qty)||0;
-    const creator=order.creator||'';
+  data.orders.forEach(function(o){
+    if(o.cancelled) return;
+    var p = o.product || '';
+    if(!a[p]) a[p] = {need:0,bought:0};
+    a[p].need += Number(o.qty) || 0;
+  });
 
-    const price=Number(order.price)||0;
-    const twdPrice=Number(order.twdPrice)||0;
+  data.purchases.forEach(function(p){
+    if((p.status || '') === '缺貨') return;
+    var name = p.product || '';
+    if(!a[name]) a[name] = {need:0,bought:0};
+    a[name].bought += Number(p.qty) || 0;
+  });
 
-    /*
-      如果後端沒有 twdTotal，
-      前端自行計算。
-    */
+  return a;
+}
 
-    const twdTotal=
-      Number(order.twdTotal) ||
-      (qty*twdPrice);
+function render(){
+  renderBuy();
+  renderPay();
+  renderOrders();
+}
 
-    return `
+function toggleProfit(){
+  var wrap = el('profitWrap');
+  var arrow = el('profitArrow');
+  var open = wrap.style.display !== 'none';
+  wrap.style.display = open ? 'none' : 'block';
+  arrow.textContent = open ? '▼' : '▲';
+}
 
-      <div class="order ${cancelled?'cancelled':''}">
+function renderProfit(){
+  if(!el('profitCard')) return;
 
-        <div class="orderTop">
+  var s = data.summary || {};
+  var advances = s.advances || {};
+  var people = Object.keys(advances);
+  var advanceHtml = people.length ? people.map(function(name){
+    var jpy = Number(advances[name]) || 0;
+    var twdValue = Math.round(jpy * (Number(data.rate)||0.210));
+    return '<div style="margin-top:4px"><b>' + esc(name) + '</b>：' +
+      yen(jpy) + '<div class="small">約 NT$' + twdValue.toLocaleString() + '</div></div>';
+  }).join('') : '<div class="small">尚無墊款</div>';
 
-          <div class="orderId">
-            ${escapeHtml(id)}
-          </div>
+  var ownerRevenue = s.ownerRevenue || {};
+  var ownerCostTwd = s.ownerAllocatedCostTwd || {};
+  var ownerProfit = s.ownerGrossProfitTwd || {};
+  var owners = {};
+  Object.keys(ownerRevenue).forEach(function(name){ owners[name] = true; });
+  Object.keys(ownerProfit).forEach(function(name){ owners[name] = true; });
 
-          ${
-            cancelled
-
-            ? '<span class="badge cancelBadge">已取消</span>'
-
-            : '<span class="badge">有效訂單</span>'
-          }
-
-        </div>
-
-        <div class="row">
-          👤 顧客：${escapeHtml(customer)}
-        </div>
-
-        <div class="row">
-          🛍 商品：${escapeHtml(product)}
-        </div>
-
-        <div class="row">
-          🔢 數量：${numberText(qty)}
-        </div>
-
-        <div class="row">
-          🇯🇵 日幣售價：¥${money(price)}／件
-        </div>
-
-        <div class="row">
-          🇹🇼 台幣售價：NT$${money(twdPrice)}／件
-        </div>
-
-        <div class="row">
-          💰 訂單總額：NT$${money(twdTotal)}
-        </div>
-
-        ${
-          creator
-          ? `<div class="row">
-               🙋 建單：${escapeHtml(creator)}
-             </div>`
-          : ''
-        }
-
-      </div>
-    `;
-
+  var personalHtml = Object.keys(owners).sort().map(function(name){
+    var revenue = Math.round(Number(ownerRevenue[name]) || 0);
+    var cost = Math.round(Number(ownerCostTwd[name]) || 0);
+    var profit = Math.round(Number(ownerProfit[name]) || 0);
+    return '<div style="background:#f7f7f8;border-radius:12px;padding:10px">' +
+      '<div style="font-weight:900">' + esc(name) + ' 毛利</div>' +
+      '<div style="font-size:20px;font-weight:900;margin-top:3px">NT$' + profit.toLocaleString() + '</div>' +
+      '<div class="small">營收 NT$' + revenue.toLocaleString() +
+      '｜分攤成本 NT$' + cost.toLocaleString() + '</div></div>';
   }).join('');
-}
 
-
-/* =========================
-   小工具
-========================= */
-
-function money(value){
-
-  return Math.round(Number(value)||0)
-    .toLocaleString('zh-TW');
-}
-
-
-function numberText(value){
-
-  const n=Number(value)||0;
-
-  if(Number.isInteger(n)){
-    return n.toLocaleString('zh-TW');
+  if(!personalHtml){
+    personalHtml = '<div class="small">尚無可計算的個人毛利。</div>';
   }
 
-  return n.toLocaleString('zh-TW');
+  el('profitCard').innerHTML =
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+      '<div style="background:#f7f7f8;border-radius:12px;padding:10px">' +
+        '<div class="small">預計收入</div><b>NT$' + Math.round(Number(s.revenueTwd)||0).toLocaleString() + '</b></div>' +
+      '<div style="background:#f7f7f8;border-radius:12px;padding:10px">' +
+        '<div class="small">採買成本</div><b>' + yen(s.costJpy||0) + '</b>' +
+        '<div class="small">約 NT$' + Math.round(Number(s.costTwd)||0).toLocaleString() + '</div></div>' +
+      '<div style="background:#eaf4ff;border-radius:12px;padding:10px;grid-column:1 / -1">' +
+        '<div class="small">💰 總毛利</div>' +
+        '<div style="font-size:22px;font-weight:900">NT$' + Math.round(Number(s.grossProfitTwd)||0).toLocaleString() + '</div></div>' +
+    '</div>' +
+    '<div style="font-weight:900;margin:12px 0 7px">👥 個人毛利</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' + personalHtml + '</div>' +
+    '<div style="font-weight:900;margin:12px 0 7px">💳 採買人墊款</div>' +
+    '<div style="background:#f7f7f8;border-radius:12px;padding:10px">' + advanceHtml + '</div>' +
+    '<div class="small" style="margin-top:8px;color:#6b7280">' +
+    '個人毛利依「建單人」歸屬；同一商品的實際採買成本會依各建單人的訂單數量比例分攤。' +
+    '</div>';
 }
 
+var buyFilter = 'todo';
+var payFilter = 'unpaid';
+var orderFilter = 'active';
 
-function escapeHtml(value){
+function paintFilter(prefix, active){
+  var ids = prefix==='bf' ? ['Todo','Done','All'] : prefix==='pf' ? ['Unpaid','Paid','All'] : ['Active','Cancelled','All'];
+  ids.forEach(function(x){
+    var b=el(prefix+x); if(!b) return;
+    var val=x.toLowerCase();
+    b.className='mini '+(val===active?'primary':'ghost');
+  });
+}
+function setBuyFilter(v){ buyFilter=v; paintFilter('bf',v); renderBuy(); }
+function setPayFilter(v){ payFilter=v; paintFilter('pf',v); renderPay(); }
+function setOrderFilter(v){ orderFilter=v; paintFilter('of',v); renderOrders(); }
 
-  return String(
-    value==null ? '' : value
-  )
-  .replaceAll('&','&amp;')
-  .replaceAll('<','&lt;')
-  .replaceAll('>','&gt;')
-  .replaceAll('"','&quot;')
-  .replaceAll("'",'&#039;');
+function renderBuy(){
+  renderProfit();
+  var a=aggregate();
+  var q=el('purchaseSearch')?el('purchaseSearch').value.trim().toLowerCase():'';
+  var all=Object.keys(a).map(function(p){var x=a[p]; return {p:p,x:x,left:Math.max(0,x.need-x.bought)};});
+  var todoCount=all.filter(function(z){return z.left>0;}).length;
+  var doneCount=all.length-todoCount;
+  if(el('buyCount')) el('buyCount').textContent='待採買 '+todoCount+' 種｜已完成 '+doneCount+' 種｜全部 '+all.length+' 種';
+  paintFilter('bf',buyFilter);
+  var items=all.filter(function(z){
+    if(q && z.p.toLowerCase().indexOf(q)<0) return false;
+    if(buyFilter==='todo' && z.left<=0) return false;
+    if(buyFilter==='done' && z.left>0) return false;
+    return true;
+  }).sort(function(a,b){ if(a.left!==b.left) return b.left-a.left; return a.p.localeCompare(b.p,'zh-Hant'); });
+  if(!items.length){el('buyList').innerHTML='<div class="empty">'+(q?'找不到符合搜尋的商品。':(buyFilter==='todo'?'🎉 目前沒有待採買商品。':'此分類目前沒有商品。'))+'</div>';return;}
+  var html='';
+  items.forEach(function(it){
+    var p=it.p,x=it.x,left=it.left;
+    var logs=data.purchases.filter(function(z){return z.product===p;});
+    var logHtml='';
+    logs.forEach(function(z){var status=z.status||'已購';logHtml+='<div class="log small">🛒 '+esc(z.buyer)+'｜'+esc(z.qty)+'件｜'+yen(z.cost)+(z.note?'｜'+esc(z.note):'')+'｜'+esc(status)+' <button class="mini warn" style="float:right;max-width:80px" onclick="editBuy(&quot;'+jsq(z.id)+'&quot;)">✏️ 更正</button></div>';});
+    var photo=productPhoto(p);
+    html+='<div class="card"><div class="row"><div style="display:flex;align-items:center">'+(photo?'<img class="photoThumb" src="'+esc(photo)+'" onclick="openPhoto(&quot;'+jsq(photo)+'&quot;)">':'')+'<div><div class="name">'+esc(p)+'</div><div class="small">需求 '+x.need+'｜已購 '+x.bought+'｜<b>尚缺 '+left+'</b></div></div></div><button class="badge '+(left===0?'done':'todo')+'" onclick="buy(&quot;'+jsq(p)+'&quot;)">'+(left===0?'✓ 已買齊':'記錄採買')+'</button></div>'+logHtml+'</div>';
+  });
+  el('buyList').innerHTML=html;
 }
 
+function renderPay(){
+  var q=el('paySearch')?el('paySearch').value.trim().toLowerCase():'';
+  var active=data.orders.filter(function(o){return !o.cancelled;});
+  var unpaid=active.filter(function(o){return !o.paid;}).length, paid=active.length-unpaid;
+  if(el('payCount')) el('payCount').textContent='未收 '+unpaid+' 筆｜已收 '+paid+' 筆｜有效訂單 '+active.length+' 筆';
+  paintFilter('pf',payFilter);
+  var arr=data.orders.filter(function(o){
+    if(o.cancelled) return payFilter==='all' && (!q || ((o.customer+' '+o.product+' '+o.id).toLowerCase().indexOf(q)>=0));
+    if(payFilter==='unpaid' && o.paid) return false;
+    if(payFilter==='paid' && !o.paid) return false;
+    return !q || ((o.customer+' '+o.product+' '+o.id).toLowerCase().indexOf(q)>=0);
+  }).slice().reverse();
+  if(!arr.length){el('payList').innerHTML='<div class="empty">目前沒有符合條件的訂單。</div>';return;}
+  var html='';
+  arr.forEach(function(o){html+='<div class="card"><div class="row"><div><div class="name">'+esc(o.customer)+(o.cancelled?' 🚫':'')+'</div><div class="small">'+esc(o.product)+' ×'+esc(o.qty)+'</div></div><div style="text-align:right"><b>NT$'+Math.round(Number(o.twdTotal)||0).toLocaleString()+'</b><button '+(o.cancelled?'disabled':'')+' class="badge '+(o.paid?'paid':'unpaid')+'" onclick="togglePay(\''+jsq(o.id)+'\')">'+(o.paid?'✓ 已收款':'未收款')+'</button></div></div></div>';});
+  el('payList').innerHTML=html;
+}
 
-/* =========================
-   頁面啟動
-========================= */
+function renderOrders(){
+  var q=el('orderSearch')?el('orderSearch').value.trim().toLowerCase():'';
+  var active=data.orders.filter(function(o){return !o.cancelled;}).length, cancelled=data.orders.length-active;
+  if(el('orderCount')) el('orderCount').textContent='有效 '+active+' 筆｜已取消 '+cancelled+' 筆｜全部 '+data.orders.length+' 筆';
+  paintFilter('of',orderFilter);
+  var arr=data.orders.filter(function(o){
+    if(orderFilter==='active' && o.cancelled) return false;
+    if(orderFilter==='cancelled' && !o.cancelled) return false;
+    return !q || ((o.id+' '+o.customer+' '+o.product).toLowerCase().indexOf(q)>=0);
+  }).slice().reverse();
+  if(!arr.length){el('orderList').innerHTML='<div class="empty">目前沒有符合條件的訂單。</div>';return;}
+  var html='';
+  arr.forEach(function(o){html+='<div class="card">'+(o.photoUrl?'<div style="display:flex;align-items:center;margin-bottom:8px"><img class="photoThumb" src="'+esc(o.photoUrl)+'" onclick="openPhoto(&quot;'+jsq(o.photoUrl)+'&quot;)"><div>':'<div>')+'<div class="name">'+esc(o.id)+'｜'+esc(o.customer)+(o.cancelled?'｜🚫 已取消':'')+'</div><div class="small">'+esc(o.product)+' ×'+esc(o.qty)+'</div><div class="small">🇯🇵 日幣售價：'+yen(o.price)+'/件｜💰 代購台幣售價：NT$'+Math.round(Number(o.twdPrice)||0).toLocaleString()+'/件</div><div class="small">訂單台幣總額：NT$'+Math.round(Number(o.twdTotal)||0).toLocaleString()+'</div></div>'+(o.photoUrl?'</div>':'')+'<div class="small">🙋 建單：'+esc(o.creator)+'｜✏️ 最後修改：'+esc(o.last)+'</div><div class="actions"><button class="mini ghost" onclick="editOrder(\''+jsq(o.id)+'\')">✏️ 編輯</button><button class="mini danger" onclick="toggleCancel(\''+jsq(o.id)+'\')">'+(o.cancelled?'↩️ 恢復':'🚫 取消')+'</button><button class="mini warn" onclick="showHistory(\''+jsq(o.id)+'\')">🕘 紀錄</button></div></div>';});
+  el('orderList').innerHTML=html;
+}
 
-restoreUser();
-updateTotal();
-loadData();
+function togglePay(id){
+  callApi('togglePayment', payload({id:id}), function(){
+    toast('收款狀態已更新');
+  });
+}
 
+function toggleCancel(id){
+  callApi('toggleCancel', payload({id:id}), function(){
+    toast('訂單狀態已更新');
+  });
+}
+
+function openM(html){
+  el('mc').innerHTML = html;
+  el('m').classList.add('open');
+}
+function closeM(){
+  el('m').classList.remove('open');
+}
+
+function buy(product){
+  var a = aggregate()[product];
+  var left = a ? Math.max(0, a.need - a.bought) : 0;
+
+  openM(
+    '<h3>🛒 記錄採買｜' + esc(product) + '</h3>' +
+    '<div class="small">目前尚缺 ' + left + ' 件｜採買人：' + esc(user) + '</div>' +
+    '<label>數量</label><input id="mq" type="number" value="' + (left>0?left:1) + '">' +
+    '<label>實際總成本 ¥</label><input id="mcost" type="number" value="0">' +
+    '<label>店家／備註</label><input id="mnote">' +
+    '<button class="btn primary" style="margin-top:12px" onclick="saveBuy(\'' + jsq(product) + '\')">儲存採買</button>'
+  );
+}
+
+function saveBuy(product){
+  var q = Number(el('mq').value);
+  var c = Number(el('mcost').value);
+  var a = aggregate()[product] || {need:0,bought:0};
+  var left = Math.max(0, a.need - a.bought);
+
+  if(q > left && left >= 0){
+    if(!confirm('目前尚缺 ' + left + ' 件，輸入 ' + q + ' 件會多買 ' + (q-left) + ' 件，確定嗎？')){
+      return;
+    }
+  }
+
+  callApi('recordPurchase', payload({
+    product: product,
+    qty: q,
+    cost: c,
+    note: el('mnote').value
+  }), function(){
+    closeM();
+    toast('採買已同步');
+  });
+}
+
+function editOrder(id){
+  var o = data.orders.find(function(x){ return x.id === id; });
+  if(!o) return;
+
+  openM(
+    '<h3>✏️ 編輯訂單 ' + esc(id) + '</h3>' +
+    '<label>顧客</label><input id="ec" value="' + esc(o.customer) + '">' +
+    '<label>商品</label><input id="ep" value="' + esc(o.product) + '">' +
+    '<div class="grid"><div><label>數量</label><input id="eq" type="number" value="' + esc(o.qty) + '"></div>' +
+    '<div><label>日幣售價 ¥/件</label><input id="epr" type="number" value="' + esc(o.price) + '"></div></div>' +
+    '<label>代購台幣售價 NT$/件</label><input id="etwd" type="number" value="' + esc(o.twdPrice) + '">' +
+    '<div class="small" style="color:#2563eb;margin-top:6px">兩個售價彼此獨立，換算僅供參考。</div>' +
+    '<button class="btn primary" style="margin-top:12px" onclick="saveEO(\'' + jsq(id) + '\')">儲存更正</button>'
+  );
+}
+
+function saveEO(id){
+  callApi('updateOrder', payload({
+    id:id,
+    customer:el('ec').value,
+    product:el('ep').value,
+    qty:Number(el('eq').value),
+    price:Number(el('epr').value),
+    twdPrice:Number(el('etwd').value)
+  }), function(){
+    closeM();
+    toast('訂單已更正');
+  });
+}
+
+function editBuy(id){
+  var p = data.purchases.find(function(x){ return x.id === id; });
+  if(!p) return;
+
+  openM(
+    '<h3>✏️ 更正採買 ' + esc(id) + '</h3>' +
+    '<label>採買人</label><input id="ebu" value="' + esc(p.buyer) + '">' +
+    '<label>數量</label><input id="ebq" type="number" value="' + esc(p.qty) + '">' +
+    '<label>總成本 ¥</label><input id="ebc" type="number" value="' + esc(p.cost) + '">' +
+    '<label>備註</label><input id="ebn" value="' + esc(p.note) + '">' +
+    '<button class="btn primary" style="margin-top:12px" onclick="saveEB(\'' + jsq(id) + '\')">儲存更正</button>'
+  );
+}
+
+function saveEB(id){
+  callApi('updatePurchase', payload({
+    id:id,
+    buyer:el('ebu').value,
+    qty:Number(el('ebq').value),
+    cost:Number(el('ebc').value),
+    note:el('ebn').value
+  }), function(){
+    closeM();
+    toast('採買已更正');
+  });
+}
+
+function showHistory(id){
+  var h = data.history.filter(function(x){ return x.target === id; });
+  var html = '<h3>🕘 ' + esc(id) + ' 異動紀錄</h3>';
+
+  if(h.length === 0){
+    html += '<div class="empty">目前沒有紀錄。</div>';
+  } else {
+    h.forEach(function(x){
+      html += '<div class="log"><div class="small">' + esc(x.time) + '｜' + esc(x.who) + '</div>' + esc(x.text) + '</div>';
+    });
+  }
+
+  openM(html);
+}
+
+window.onerror = function(message, source, line, col){
+  failure('前端錯誤：' + message + '（第 ' + line + ' 行）');
+};
+
+initDeviceUser();
+loadData(false);
 </script>
+
+<div id="cameraOverlay" class="cameraOverlay">
+  <div class="cameraTop">
+    <b>📷 拍攝商品照片</b>
+    <button type="button" class="cameraClose" onclick="stopCamera()">關閉</button>
+  </div>
+  <div id="cameraMsg" class="cameraMsg"></div>
+  <div class="cameraVideoWrap">
+    <video id="cameraVideo" class="cameraVideo" autoplay playsinline muted></video>
+  </div>
+  <div class="cameraBottom">
+    <button type="button" class="cameraFallback" onclick="useCameraFallback()">系統相機</button>
+    <button type="button" class="shutter" aria-label="拍照" onclick="takePhoto()"></button>
+  </div>
+</div>
 
 </body>
 </html>
