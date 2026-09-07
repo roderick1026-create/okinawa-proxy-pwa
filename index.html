@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>沖繩代購 V2.1</title>
+  <title>沖繩代購 V2.2</title>
 
   <style>
     * { box-sizing: border-box; }
@@ -18,7 +18,7 @@
 
     .page {
       min-height: 100vh;
-      padding: 28px 16px 50px;
+      padding: 24px 14px 50px;
     }
 
     .app {
@@ -29,13 +29,13 @@
 
     .header {
       text-align: center;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .jp {
       font-size: 38px;
-      font-weight: 800;
-      margin-bottom: 8px;
+      font-weight: 900;
+      margin-bottom: 6px;
     }
 
     h1 {
@@ -44,41 +44,121 @@
     }
 
     .version {
+      margin-top: 7px;
       color: #64748b;
-      margin-top: 8px;
-      font-size: 15px;
+      font-size: 14px;
     }
 
     .card {
-      background: white;
+      background: #fff;
       border-radius: 22px;
       padding: 20px;
-      margin-bottom: 16px;
+      margin-bottom: 15px;
       box-shadow: 0 8px 30px rgba(0,0,0,.06);
     }
 
-    button {
+    .sectionTitle {
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 700;
+      margin: 13px 0 6px;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 13px;
+      font-size: 16px;
+      background: #fff;
+    }
+
+    input:focus {
+      outline: 2px solid #bfdbfe;
+      border-color: #3b82f6;
+    }
+
+    .userButtons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 5px;
+    }
+
+    .userBtn {
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #17324d;
+      border-radius: 13px;
+      padding: 13px 8px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .userBtn.active {
+      background: #173a59;
+      border-color: #173a59;
+      color: #fff;
+    }
+
+    .mainBtn {
       width: 100%;
       border: 0;
       border-radius: 14px;
       padding: 16px;
+      margin-top: 18px;
       font-size: 17px;
-      font-weight: 800;
+      font-weight: 900;
       background: #173a59;
-      color: white;
+      color: #fff;
       cursor: pointer;
     }
 
-    button:disabled {
+    .mainBtn:disabled {
       opacity: .55;
     }
 
-    .status {
+    .syncBtn {
+      margin-top: 0;
+    }
+
+    .hint {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .totalBox {
       margin-top: 15px;
       padding: 14px;
       border-radius: 14px;
       background: #f1f5f9;
-      line-height: 1.7;
+    }
+
+    .totalLabel {
+      font-size: 13px;
+      color: #64748b;
+    }
+
+    .totalValue {
+      margin-top: 3px;
+      font-size: 23px;
+      font-weight: 900;
+    }
+
+    .status {
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f1f5f9;
+      line-height: 1.65;
     }
 
     .success {
@@ -95,39 +175,37 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 16px;
     }
 
     .summaryBox {
-      background: #f8fafc;
-      border-radius: 14px;
       padding: 14px;
+      border-radius: 14px;
+      background: #f8fafc;
     }
 
     .summaryLabel {
-      color: #64748b;
       font-size: 13px;
-      margin-bottom: 5px;
+      color: #64748b;
+      margin-bottom: 4px;
     }
 
     .summaryValue {
       font-size: 20px;
-      font-weight: 800;
-      color: #17324d;
+      font-weight: 900;
     }
 
-    .sectionTitle {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 14px;
+    .syncTime {
+      margin-top: 12px;
+      text-align: center;
+      color: #64748b;
+      font-size: 12px;
     }
 
     .order {
       border: 1px solid #e2e8f0;
       border-radius: 16px;
       padding: 15px;
-      margin-bottom: 12px;
-      background: #fff;
+      margin-bottom: 11px;
     }
 
     .order.cancelled {
@@ -138,22 +216,23 @@
     .orderTop {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 9px;
     }
 
     .orderId {
-      font-weight: 800;
+      font-weight: 900;
     }
 
     .badge {
       display: inline-block;
-      border-radius: 999px;
       padding: 4px 9px;
-      font-size: 12px;
-      font-weight: 700;
+      border-radius: 999px;
       background: #e0f2fe;
       color: #075985;
+      font-size: 12px;
+      font-weight: 800;
     }
 
     .cancelBadge {
@@ -162,26 +241,15 @@
     }
 
     .row {
-      line-height: 1.75;
       color: #334155;
+      line-height: 1.7;
       word-break: break-word;
     }
 
     .empty {
       text-align: center;
-      padding: 28px 10px;
       color: #64748b;
-    }
-
-    .syncTime {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #64748b;
-      text-align: center;
-    }
-
-    #dataArea {
-      display: none;
+      padding: 25px 5px;
     }
   </style>
 </head>
@@ -189,313 +257,721 @@
 <body>
 
 <div class="page">
-  <div class="app">
+<div class="app">
 
-    <div class="header">
-      <div class="jp">JP</div>
-      <h1>沖繩代購</h1>
-      <div class="version">
-        PWA V2.1｜Google Sheets 唯讀同步
-      </div>
+  <div class="header">
+    <div class="jp">JP</div>
+    <h1>沖繩代購</h1>
+    <div class="version">
+      PWA V2.2｜建立訂單＋跨手機同步
+    </div>
+  </div>
+
+
+  <!-- 建立訂單 -->
+  <div class="card">
+
+    <div class="sectionTitle">
+      📝 建立訂單
     </div>
 
-    <div class="card">
+    <label>🙋 操作人</label>
 
-      <button id="loadBtn" onclick="loadData()">
-        🔄 讀取 Google Sheets 資料
+    <div class="userButtons">
+      <button id="user秉謙"
+              class="userBtn"
+              onclick="selectUser('秉謙')">
+        秉謙
       </button>
 
-      <div id="status" class="status">
-        尚未同步
-      </div>
-
+      <button id="user孟欣"
+              class="userBtn"
+              onclick="selectUser('孟欣')">
+        孟欣
+      </button>
     </div>
 
-    <div id="dataArea">
 
-      <div class="card">
-
-        <div class="sectionTitle">
-          📊 同步摘要
-        </div>
-
-        <div class="summary">
-
-          <div class="summaryBox">
-            <div class="summaryLabel">📋 訂單</div>
-            <div id="orderCount" class="summaryValue">0 筆</div>
-          </div>
-
-          <div class="summaryBox">
-            <div class="summaryLabel">🛒 採買紀錄</div>
-            <div id="purchaseCount" class="summaryValue">0 筆</div>
-          </div>
-
-          <div class="summaryBox">
-            <div class="summaryLabel">💱 目前匯率</div>
-            <div id="rate" class="summaryValue">-</div>
-          </div>
-
-          <div class="summaryBox">
-            <div class="summaryLabel">⚙️ 後端版本</div>
-            <div id="backendVersion" class="summaryValue">-</div>
-          </div>
-
-        </div>
-
-        <div id="syncTime" class="syncTime"></div>
-
-      </div>
+    <label for="customer">👤 顧客</label>
+    <input id="customer"
+           type="text"
+           placeholder="例如：V2.2測試">
 
 
-      <div class="card">
+    <label for="product">🛍 商品</label>
+    <input id="product"
+           type="text"
+           placeholder="例如：跨手機同步測試">
 
-        <div class="sectionTitle">
-          📋 Google Sheet 現有訂單
-        </div>
 
-        <div id="orderList"></div>
+    <label for="qty">🔢 數量</label>
+    <input id="qty"
+           type="number"
+           min="1"
+           step="1"
+           value="1"
+           oninput="updateTotal()">
 
-      </div>
 
+    <label for="price">🇯🇵 日幣售價／件</label>
+    <input id="price"
+           type="number"
+           min="0"
+           step="1"
+           value="0">
+
+
+    <label for="twdPrice">🇹🇼 代購台幣售價／件</label>
+    <input id="twdPrice"
+           type="number"
+           min="0"
+           step="1"
+           value="0"
+           oninput="updateTotal()">
+
+    <div class="totalBox">
+      <div class="totalLabel">💰 訂單台幣總額</div>
+      <div id="twdTotal" class="totalValue">NT$0</div>
+    </div>
+
+    <button id="createBtn"
+            class="mainBtn"
+            onclick="createOrder()">
+      ➕ 建立訂單
+    </button>
+
+    <div id="createStatus"
+         class="status">
+      尚未建立訂單
     </div>
 
   </div>
+
+
+  <!-- 同步 -->
+  <div class="card">
+
+    <button id="syncBtn"
+            class="mainBtn syncBtn"
+            onclick="loadData()">
+      🔄 同步最新資料
+    </button>
+
+    <div id="syncStatus"
+         class="status">
+      尚未同步
+    </div>
+
+  </div>
+
+
+  <!-- 摘要 -->
+  <div class="card">
+
+    <div class="sectionTitle">
+      📊 同步摘要
+    </div>
+
+    <div class="summary">
+
+      <div class="summaryBox">
+        <div class="summaryLabel">📋 訂單</div>
+        <div id="orderCount"
+             class="summaryValue">-</div>
+      </div>
+
+      <div class="summaryBox">
+        <div class="summaryLabel">🛒 採買紀錄</div>
+        <div id="purchaseCount"
+             class="summaryValue">-</div>
+      </div>
+
+      <div class="summaryBox">
+        <div class="summaryLabel">💱 目前匯率</div>
+        <div id="rate"
+             class="summaryValue">-</div>
+      </div>
+
+      <div class="summaryBox">
+        <div class="summaryLabel">⚙️ 後端版本</div>
+        <div id="backendVersion"
+             class="summaryValue">-</div>
+      </div>
+
+    </div>
+
+    <div id="syncTime"
+         class="syncTime"></div>
+
+  </div>
+
+
+  <!-- 訂單列表 -->
+  <div class="card">
+
+    <div class="sectionTitle">
+      📋 Google Sheet 現有訂單
+    </div>
+
+    <div id="orderList">
+      <div class="empty">正在等待同步…</div>
+    </div>
+
+  </div>
+
+</div>
 </div>
 
 
 <script>
 
 const API_URL =
-  'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
+'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
+
+let currentUser =
+  localStorage.getItem('okinawa_v2_user') || '';
 
 
-async function loadData() {
+function selectUser(user) {
 
-  const btn = document.getElementById('loadBtn');
-  const status = document.getElementById('status');
+  currentUser = user;
 
-  btn.disabled = true;
-  btn.textContent = '⟳ 正在同步…';
+  localStorage.setItem(
+    'okinawa_v2_user',
+    user
+  );
 
-  status.className = 'status';
-  status.innerHTML = '正在從 Google Sheets 取得最新資料…';
+  document
+    .querySelectorAll('.userBtn')
+    .forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+
+  const selected =
+    document.getElementById('user' + user);
+
+  if (selected) {
+    selected.classList.add('active');
+  }
+
+}
+
+
+function restoreUser() {
+
+  if (
+    currentUser === '秉謙' ||
+    currentUser === '孟欣'
+  ) {
+    selectUser(currentUser);
+  }
+
+}
+
+
+function updateTotal() {
+
+  const qty =
+    Number(document.getElementById('qty').value) || 0;
+
+  const twdPrice =
+    Number(document.getElementById('twdPrice').value) || 0;
+
+  const total =
+    Math.round(qty * twdPrice);
+
+  document.getElementById('twdTotal').textContent =
+    'NT$' + total.toLocaleString('zh-TW');
+
+}
+
+
+async function apiRequest(action, payload) {
+
+  const response = await fetch(API_URL, {
+
+    method: 'POST',
+
+    headers: {
+      'Content-Type':
+        'text/plain;charset=utf-8'
+    },
+
+    body: JSON.stringify({
+      v2: true,
+      action: action,
+      payload: payload || {}
+    }),
+
+    redirect: 'follow'
+
+  });
+
+
+  const text = await response.text();
+
+  let data;
 
   try {
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain;charset=utf-8'
-      },
-      body: JSON.stringify({
-        v2: true,
-        action: 'getData'
-      }),
-      redirect: 'follow'
-    });
+    data = JSON.parse(text);
 
-    const text = await response.text();
+  } catch (e) {
 
-    let data;
+    throw new Error(
+      '伺服器回傳內容不是有效 JSON'
+    );
 
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      throw new Error(
-        '伺服器回傳的內容不是有效 JSON'
+  }
+
+
+  if (!data || data.ok !== true) {
+
+    throw new Error(
+      data && data.message
+        ? data.message
+        : 'API 執行失敗'
+    );
+
+  }
+
+  return data;
+
+}
+
+
+async function createOrder() {
+
+  const status =
+    document.getElementById('createStatus');
+
+  const btn =
+    document.getElementById('createBtn');
+
+  const customer =
+    document.getElementById('customer')
+      .value.trim();
+
+  const product =
+    document.getElementById('product')
+      .value.trim();
+
+  const qty =
+    Number(
+      document.getElementById('qty').value
+    );
+
+  const price =
+    Number(
+      document.getElementById('price').value
+    );
+
+  const twdPrice =
+    Number(
+      document.getElementById('twdPrice').value
+    );
+
+
+  if (!currentUser) {
+
+    showCreateError(
+      '請先選擇操作人：秉謙或孟欣'
+    );
+
+    return;
+  }
+
+
+  if (!customer) {
+
+    showCreateError(
+      '請輸入顧客'
+    );
+
+    return;
+  }
+
+
+  if (!product) {
+
+    showCreateError(
+      '請輸入商品'
+    );
+
+    return;
+  }
+
+
+  if (!Number.isFinite(qty) || qty <= 0) {
+
+    showCreateError(
+      '數量必須大於 0'
+    );
+
+    return;
+  }
+
+
+  if (!Number.isFinite(price) || price < 0) {
+
+    showCreateError(
+      '請確認日幣售價'
+    );
+
+    return;
+  }
+
+
+  if (!Number.isFinite(twdPrice) || twdPrice < 0) {
+
+    showCreateError(
+      '請確認台幣售價'
+    );
+
+    return;
+  }
+
+
+  btn.disabled = true;
+
+  btn.textContent =
+    '⟳ 正在建立訂單…';
+
+  status.className = 'status';
+
+  status.textContent =
+    '正在寫入 Google Sheets…';
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        'createOrder',
+        {
+          user: currentUser,
+          customer: customer,
+          product: product,
+          qty: qty,
+          price: price,
+          twdPrice: twdPrice
+        }
       );
-    }
 
-    if (!data || data.ok !== true) {
-      throw new Error(
-        data && data.message
-          ? data.message
-          : '後端沒有回傳有效資料'
-      );
-    }
 
-    const orders =
-      Array.isArray(data.orders)
-        ? data.orders
-        : [];
-
-    const purchases =
-      Array.isArray(data.purchases)
-        ? data.purchases
-        : [];
-
-    document.getElementById('orderCount').textContent =
-      orders.length + ' 筆';
-
-    document.getElementById('purchaseCount').textContent =
-      purchases.length + ' 筆';
-
-    document.getElementById('rate').textContent =
-      Number(data.rate || 0).toFixed(3);
-
-    document.getElementById('backendVersion').textContent =
-      data.version || '?';
-
-    document.getElementById('syncTime').textContent =
-      '☁ 最後同步：' +
-      (data.syncedAt || new Date().toLocaleString('zh-TW'));
-
-    renderOrders(orders);
-
-    document.getElementById('dataArea').style.display =
-      'block';
-
-    status.className = 'status success';
+    status.className =
+      'status success';
 
     status.innerHTML =
-      '<strong>✅ Google Sheets 同步成功</strong><br>' +
-      '已取得 ' +
-      orders.length +
-      ' 筆訂單、' +
-      purchases.length +
-      ' 筆採買紀錄。';
+      '<strong>✅ 訂單建立成功</strong><br>' +
+      'Google Sheets 已更新，' +
+      '畫面也已取得最新資料。';
+
+
+    // 建立成功後直接使用後端回傳的最新資料
+    renderData(data);
+
+
+    // 清空顧客與商品
+    document.getElementById('customer').value = '';
+    document.getElementById('product').value = '';
+
+    // 保留操作人
+    // 數量回到 1
+    document.getElementById('qty').value = 1;
+
+    // 價格回到 0
+    document.getElementById('price').value = 0;
+    document.getElementById('twdPrice').value = 0;
+
+    updateTotal();
+
 
   } catch (error) {
 
-    console.error(error);
-
-    status.className = 'status error';
-
-    status.innerHTML =
-      '<strong>❌ Google Sheets 同步失敗</strong><br>' +
-      escapeHtml(error.message);
-
-    document.getElementById('dataArea').style.display =
-      'none';
+    showCreateError(
+      error.message
+    );
 
   } finally {
 
     btn.disabled = false;
-    btn.textContent = '🔄 重新同步最新資料';
+
+    btn.textContent =
+      '➕ 建立訂單';
 
   }
+
+}
+
+
+function showCreateError(message) {
+
+  const status =
+    document.getElementById('createStatus');
+
+  status.className =
+    'status error';
+
+  status.innerHTML =
+    '<strong>❌ 無法建立訂單</strong><br>' +
+    escapeHtml(message);
+
+}
+
+
+async function loadData() {
+
+  const btn =
+    document.getElementById('syncBtn');
+
+  const status =
+    document.getElementById('syncStatus');
+
+
+  btn.disabled = true;
+
+  btn.textContent =
+    '⟳ 正在同步…';
+
+  status.className =
+    'status';
+
+  status.textContent =
+    '正在取得 Google Sheets 最新資料…';
+
+
+  try {
+
+    const data =
+      await apiRequest(
+        'getData',
+        {}
+      );
+
+
+    renderData(data);
+
+
+    status.className =
+      'status success';
+
+    status.innerHTML =
+      '<strong>✅ Google Sheets 同步成功</strong><br>' +
+      '目前資料已更新。';
+
+
+  } catch (error) {
+
+    status.className =
+      'status error';
+
+    status.innerHTML =
+      '<strong>❌ 同步失敗</strong><br>' +
+      escapeHtml(error.message);
+
+  } finally {
+
+    btn.disabled = false;
+
+    btn.textContent =
+      '🔄 同步最新資料';
+
+  }
+
+}
+
+
+function renderData(data) {
+
+  const orders =
+    Array.isArray(data.orders)
+      ? data.orders
+      : [];
+
+  const purchases =
+    Array.isArray(data.purchases)
+      ? data.purchases
+      : [];
+
+
+  document.getElementById('orderCount')
+    .textContent =
+      orders.length + ' 筆';
+
+  document.getElementById('purchaseCount')
+    .textContent =
+      purchases.length + ' 筆';
+
+  document.getElementById('rate')
+    .textContent =
+      Number(data.rate || 0).toFixed(3);
+
+  document.getElementById('backendVersion')
+    .textContent =
+      data.version || '?';
+
+  document.getElementById('syncTime')
+    .textContent =
+      '☁ 最後同步：' +
+      (
+        data.syncedAt ||
+        new Date().toLocaleString('zh-TW')
+      );
+
+
+  renderOrders(orders);
 
 }
 
 
 function renderOrders(orders) {
 
-  const box = document.getElementById('orderList');
+  const box =
+    document.getElementById('orderList');
+
 
   if (!orders.length) {
 
     box.innerHTML =
       '<div class="empty">' +
-      '目前 API 沒有取得任何訂單。' +
+      '目前沒有訂單。' +
       '</div>';
 
     return;
+
   }
 
 
-  box.innerHTML = orders.map(function(order) {
+  const arr =
+    orders.slice().reverse();
 
-    const cancelled =
-      order.cancelled === true;
 
-    const id =
-      order.id != null
-        ? order.id
-        : '';
+  box.innerHTML =
+    arr.map(function(order) {
 
-    const customer =
-      order.customer != null
-        ? order.customer
-        : '';
+      const cancelled =
+        order.cancelled === true;
 
-    const product =
-      order.product != null
-        ? order.product
-        : '';
+      const id =
+        order.id == null
+          ? ''
+          : order.id;
 
-    const qty =
-      order.qty != null
-        ? order.qty
-        : '';
+      const customer =
+        order.customer == null
+          ? ''
+          : order.customer;
 
-    const creator =
-      order.creator != null
-        ? order.creator
-        : '';
+      const product =
+        order.product == null
+          ? ''
+          : order.product;
 
-    const saleTotal =
-      order.saleTotal != null
-        ? order.saleTotal
-        : '';
+      const qty =
+        order.qty == null
+          ? ''
+          : order.qty;
 
-    return (
-      '<div class="order ' +
-      (cancelled ? 'cancelled' : '') +
-      '">' +
+      const creator =
+        order.creator == null
+          ? ''
+          : order.creator;
 
-        '<div class="orderTop">' +
+      const price =
+        Number(order.price) || 0;
 
-          '<div class="orderId">' +
-            '#' + escapeHtml(id) +
+      const twdPrice =
+        Number(order.twdPrice) || 0;
+
+      const twdTotal =
+        Number(order.twdTotal) || 0;
+
+
+      return (
+
+        '<div class="order ' +
+        (cancelled ? 'cancelled' : '') +
+        '">' +
+
+          '<div class="orderTop">' +
+
+            '<div class="orderId">' +
+              escapeHtml(id) +
+            '</div>' +
+
+            (
+              cancelled
+
+                ? '<span class="badge cancelBadge">' +
+                  '已取消' +
+                  '</span>'
+
+                : '<span class="badge">' +
+                  '有效訂單' +
+                  '</span>'
+            ) +
+
           '</div>' +
 
+
+          '<div class="row">' +
+            '👤 顧客：' +
+            escapeHtml(customer) +
+          '</div>' +
+
+
+          '<div class="row">' +
+            '🛍 商品：' +
+            escapeHtml(product) +
+          '</div>' +
+
+
+          '<div class="row">' +
+            '🔢 數量：' +
+            escapeHtml(qty) +
+          '</div>' +
+
+
+          '<div class="row">' +
+            '🇯🇵 日幣售價：¥' +
+            Math.round(price)
+              .toLocaleString('zh-TW') +
+            ' / 件' +
+          '</div>' +
+
+
+          '<div class="row">' +
+            '🇹🇼 台幣售價：NT$' +
+            Math.round(twdPrice)
+              .toLocaleString('zh-TW') +
+            ' / 件' +
+          '</div>' +
+
+
+          '<div class="row">' +
+            '💰 訂單總額：NT$' +
+            Math.round(twdTotal)
+              .toLocaleString('zh-TW') +
+          '</div>' +
+
+
           (
-            cancelled
-              ? '<span class="badge cancelBadge">已取消</span>'
-              : '<span class="badge">有效訂單</span>'
+            creator
+
+              ? '<div class="row">' +
+                '🙋 建單：' +
+                escapeHtml(creator) +
+                '</div>'
+
+              : ''
           ) +
 
-        '</div>' +
+        '</div>'
 
-        '<div class="row">' +
-          '👤 顧客：' +
-          escapeHtml(customer) +
-        '</div>' +
+      );
 
-        '<div class="row">' +
-          '🛍 商品：' +
-          escapeHtml(product) +
-        '</div>' +
-
-        '<div class="row">' +
-          '🔢 數量：' +
-          escapeHtml(qty) +
-        '</div>' +
-
-        (
-          creator
-            ? '<div class="row">✍️ 建單人：' +
-              escapeHtml(creator) +
-              '</div>'
-            : ''
-        ) +
-
-        (
-          saleTotal !== ''
-            ? '<div class="row">💰 訂單售價：NT$' +
-              formatNumber(saleTotal) +
-              '</div>'
-            : ''
-        ) +
-
-      '</div>'
-    );
-
-  }).join('');
-
-}
-
-
-function formatNumber(value) {
-
-  const n = Number(value);
-
-  if (!Number.isFinite(n)) {
-    return escapeHtml(value);
-  }
-
-  return Math.round(n).toLocaleString('zh-TW');
+    }).join('');
 
 }
 
@@ -503,15 +979,25 @@ function formatNumber(value) {
 function escapeHtml(value) {
 
   return String(
-    value == null ? '' : value
+    value == null
+      ? ''
+      : value
   )
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+  .replaceAll('&', '&amp;')
+  .replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;')
+  .replaceAll('"', '&quot;')
+  .replaceAll("'", '&#039;');
 
 }
+
+
+// 頁面開啟
+restoreUser();
+updateTotal();
+
+// 開啟後自動抓最新資料
+loadData();
 
 </script>
 
