@@ -3,12 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>沖繩代購 V2.0 API 測試</title>
+  <title>沖繩代購 V2.1</title>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
@@ -20,34 +18,43 @@
 
     .page {
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 24px;
+      padding: 28px 16px 50px;
     }
 
-    .card {
+    .app {
       width: 100%;
-      max-width: 420px;
-      background: white;
-      border-radius: 24px;
-      padding: 30px 22px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.08);
-      text-align: center;
+      max-width: 460px;
+      margin: auto;
     }
 
-    .flag {
-      font-size: 54px;
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .jp {
+      font-size: 38px;
+      font-weight: 800;
+      margin-bottom: 8px;
     }
 
     h1 {
-      margin: 10px 0 4px;
+      margin: 0;
       font-size: 30px;
     }
 
     .version {
       color: #64748b;
-      margin-bottom: 28px;
+      margin-top: 8px;
+      font-size: 15px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,.06);
     }
 
     button {
@@ -55,9 +62,9 @@
       border: 0;
       border-radius: 14px;
       padding: 16px;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 800;
-      background: #17324d;
+      background: #173a59;
       color: white;
       cursor: pointer;
     }
@@ -66,31 +73,115 @@
       opacity: .55;
     }
 
-    #result {
-      margin-top: 20px;
-      padding: 16px;
+    .status {
+      margin-top: 15px;
+      padding: 14px;
       border-radius: 14px;
       background: #f1f5f9;
-      text-align: left;
       line-height: 1.7;
-      word-break: break-word;
     }
 
     .success {
-      background: #dcfce7 !important;
+      background: #dcfce7;
       color: #166534;
     }
 
     .error {
-      background: #fee2e2 !important;
+      background: #fee2e2;
       color: #991b1b;
     }
 
-    .small {
+    .summary {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .summaryBox {
+      background: #f8fafc;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .summaryLabel {
+      color: #64748b;
+      font-size: 13px;
+      margin-bottom: 5px;
+    }
+
+    .summaryValue {
+      font-size: 20px;
+      font-weight: 800;
+      color: #17324d;
+    }
+
+    .sectionTitle {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 14px;
+    }
+
+    .order {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 15px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .order.cancelled {
+      opacity: .55;
+      background: #f8fafc;
+    }
+
+    .orderTop {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .orderId {
+      font-weight: 800;
+    }
+
+    .badge {
+      display: inline-block;
+      border-radius: 999px;
+      padding: 4px 9px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .cancelBadge {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .row {
+      line-height: 1.75;
+      color: #334155;
+      word-break: break-word;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 28px 10px;
+      color: #64748b;
+    }
+
+    .syncTime {
+      margin-top: 12px;
       font-size: 13px;
       color: #64748b;
-      margin-top: 20px;
-      line-height: 1.6;
+      text-align: center;
+    }
+
+    #dataArea {
+      display: none;
     }
   </style>
 </head>
@@ -98,31 +189,80 @@
 <body>
 
 <div class="page">
-  <div class="card">
+  <div class="app">
 
-    <div class="flag">🇯🇵</div>
-
-    <h1>沖繩代購</h1>
-
-    <div class="version">
-      PWA V2.0｜API 連線測試
+    <div class="header">
+      <div class="jp">JP</div>
+      <h1>沖繩代購</h1>
+      <div class="version">
+        PWA V2.1｜Google Sheets 唯讀同步
+      </div>
     </div>
 
-    <button id="testBtn" onclick="testApi()">
-      測試 V2 API
-    </button>
+    <div class="card">
 
-    <div id="result">
-      尚未測試
+      <button id="loadBtn" onclick="loadData()">
+        🔄 讀取 Google Sheets 資料
+      </button>
+
+      <div id="status" class="status">
+        尚未同步
+      </div>
+
     </div>
 
-    <div class="small">
-      本次測試只會執行 ping。<br>
-      不會讀取、修改或刪除 Google Sheets 資料。
+    <div id="dataArea">
+
+      <div class="card">
+
+        <div class="sectionTitle">
+          📊 同步摘要
+        </div>
+
+        <div class="summary">
+
+          <div class="summaryBox">
+            <div class="summaryLabel">📋 訂單</div>
+            <div id="orderCount" class="summaryValue">0 筆</div>
+          </div>
+
+          <div class="summaryBox">
+            <div class="summaryLabel">🛒 採買紀錄</div>
+            <div id="purchaseCount" class="summaryValue">0 筆</div>
+          </div>
+
+          <div class="summaryBox">
+            <div class="summaryLabel">💱 目前匯率</div>
+            <div id="rate" class="summaryValue">-</div>
+          </div>
+
+          <div class="summaryBox">
+            <div class="summaryLabel">⚙️ 後端版本</div>
+            <div id="backendVersion" class="summaryValue">-</div>
+          </div>
+
+        </div>
+
+        <div id="syncTime" class="syncTime"></div>
+
+      </div>
+
+
+      <div class="card">
+
+        <div class="sectionTitle">
+          📋 Google Sheet 現有訂單
+        </div>
+
+        <div id="orderList"></div>
+
+      </div>
+
     </div>
 
   </div>
 </div>
+
 
 <script>
 
@@ -130,33 +270,28 @@ const API_URL =
   'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
 
 
-async function testApi() {
+async function loadData() {
 
-  const button = document.getElementById('testBtn');
-  const result = document.getElementById('result');
+  const btn = document.getElementById('loadBtn');
+  const status = document.getElementById('status');
 
-  button.disabled = true;
-  button.textContent = '連線測試中…';
+  btn.disabled = true;
+  btn.textContent = '⟳ 正在同步…';
 
-  result.className = '';
-  result.innerHTML = '正在連接 Apps Script V2 API…';
+  status.className = 'status';
+  status.innerHTML = '正在從 Google Sheets 取得最新資料…';
 
   try {
 
     const response = await fetch(API_URL, {
       method: 'POST',
-
-      // 先使用 simple request，
-      // 避免瀏覽器先送 OPTIONS preflight。
       headers: {
         'Content-Type': 'text/plain;charset=utf-8'
       },
-
       body: JSON.stringify({
         v2: true,
-        action: 'ping'
+        action: 'getData'
       }),
-
       redirect: 'follow'
     });
 
@@ -168,55 +303,208 @@ async function testApi() {
       data = JSON.parse(text);
     } catch (e) {
       throw new Error(
-        '伺服器有回應，但不是 JSON。HTTP ' +
-        response.status +
-        '｜' +
-        text.substring(0, 150)
+        '伺服器回傳的內容不是有效 JSON'
       );
     }
 
-    if (data.ok === true) {
-
-      result.className = 'success';
-
-      result.innerHTML =
-        '<strong>✅ V2 API 連線成功！</strong><br><br>' +
-        'API：' + escapeHtml(data.api || '') + '<br>' +
-        '版本：' + escapeHtml(data.version || '') + '<br>' +
-        '訊息：' + escapeHtml(data.message || '');
-
-    } else {
-
+    if (!data || data.ok !== true) {
       throw new Error(
-        data.message || 'API 回傳失敗'
+        data && data.message
+          ? data.message
+          : '後端沒有回傳有效資料'
       );
-
     }
+
+    const orders =
+      Array.isArray(data.orders)
+        ? data.orders
+        : [];
+
+    const purchases =
+      Array.isArray(data.purchases)
+        ? data.purchases
+        : [];
+
+    document.getElementById('orderCount').textContent =
+      orders.length + ' 筆';
+
+    document.getElementById('purchaseCount').textContent =
+      purchases.length + ' 筆';
+
+    document.getElementById('rate').textContent =
+      Number(data.rate || 0).toFixed(3);
+
+    document.getElementById('backendVersion').textContent =
+      data.version || '?';
+
+    document.getElementById('syncTime').textContent =
+      '☁ 最後同步：' +
+      (data.syncedAt || new Date().toLocaleString('zh-TW'));
+
+    renderOrders(orders);
+
+    document.getElementById('dataArea').style.display =
+      'block';
+
+    status.className = 'status success';
+
+    status.innerHTML =
+      '<strong>✅ Google Sheets 同步成功</strong><br>' +
+      '已取得 ' +
+      orders.length +
+      ' 筆訂單、' +
+      purchases.length +
+      ' 筆採買紀錄。';
 
   } catch (error) {
 
     console.error(error);
 
-    result.className = 'error';
+    status.className = 'status error';
 
-    result.innerHTML =
-      '<strong>❌ V2 API 連線失敗</strong><br><br>' +
-      escapeHtml(error.message) +
-      '<br><br>' +
-      '先不要修改其他設定，把這個畫面截圖給我。';
+    status.innerHTML =
+      '<strong>❌ Google Sheets 同步失敗</strong><br>' +
+      escapeHtml(error.message);
+
+    document.getElementById('dataArea').style.display =
+      'none';
 
   } finally {
 
-    button.disabled = false;
-    button.textContent = '重新測試 V2 API';
+    btn.disabled = false;
+    btn.textContent = '🔄 重新同步最新資料';
 
   }
+
+}
+
+
+function renderOrders(orders) {
+
+  const box = document.getElementById('orderList');
+
+  if (!orders.length) {
+
+    box.innerHTML =
+      '<div class="empty">' +
+      '目前 API 沒有取得任何訂單。' +
+      '</div>';
+
+    return;
+  }
+
+
+  box.innerHTML = orders.map(function(order) {
+
+    const cancelled =
+      order.cancelled === true;
+
+    const id =
+      order.id != null
+        ? order.id
+        : '';
+
+    const customer =
+      order.customer != null
+        ? order.customer
+        : '';
+
+    const product =
+      order.product != null
+        ? order.product
+        : '';
+
+    const qty =
+      order.qty != null
+        ? order.qty
+        : '';
+
+    const creator =
+      order.creator != null
+        ? order.creator
+        : '';
+
+    const saleTotal =
+      order.saleTotal != null
+        ? order.saleTotal
+        : '';
+
+    return (
+      '<div class="order ' +
+      (cancelled ? 'cancelled' : '') +
+      '">' +
+
+        '<div class="orderTop">' +
+
+          '<div class="orderId">' +
+            '#' + escapeHtml(id) +
+          '</div>' +
+
+          (
+            cancelled
+              ? '<span class="badge cancelBadge">已取消</span>'
+              : '<span class="badge">有效訂單</span>'
+          ) +
+
+        '</div>' +
+
+        '<div class="row">' +
+          '👤 顧客：' +
+          escapeHtml(customer) +
+        '</div>' +
+
+        '<div class="row">' +
+          '🛍 商品：' +
+          escapeHtml(product) +
+        '</div>' +
+
+        '<div class="row">' +
+          '🔢 數量：' +
+          escapeHtml(qty) +
+        '</div>' +
+
+        (
+          creator
+            ? '<div class="row">✍️ 建單人：' +
+              escapeHtml(creator) +
+              '</div>'
+            : ''
+        ) +
+
+        (
+          saleTotal !== ''
+            ? '<div class="row">💰 訂單售價：NT$' +
+              formatNumber(saleTotal) +
+              '</div>'
+            : ''
+        ) +
+
+      '</div>'
+    );
+
+  }).join('');
+
+}
+
+
+function formatNumber(value) {
+
+  const n = Number(value);
+
+  if (!Number.isFinite(n)) {
+    return escapeHtml(value);
+  }
+
+  return Math.round(n).toLocaleString('zh-TW');
+
 }
 
 
 function escapeHtml(value) {
 
-  return String(value)
+  return String(
+    value == null ? '' : value
+  )
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
