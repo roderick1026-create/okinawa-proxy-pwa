@@ -3,55 +3,229 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>沖繩代購 V2.0</title>
+  <title>沖繩代購 V2.0 API 測試</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "Noto Sans TC", sans-serif;
+      background: #fbf7ef;
+      color: #17324d;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: white;
+      border-radius: 24px;
+      padding: 30px 22px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.08);
+      text-align: center;
+    }
+
+    .flag {
+      font-size: 54px;
+    }
+
+    h1 {
+      margin: 10px 0 4px;
+      font-size: 30px;
+    }
+
+    .version {
+      color: #64748b;
+      margin-bottom: 28px;
+    }
+
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 800;
+      background: #17324d;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .55;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #f1f5f9;
+      text-align: left;
+      line-height: 1.7;
+      word-break: break-word;
+    }
+
+    .success {
+      background: #dcfce7 !important;
+      color: #166534;
+    }
+
+    .error {
+      background: #fee2e2 !important;
+      color: #991b1b;
+    }
+
+    .small {
+      font-size: 13px;
+      color: #64748b;
+      margin-top: 20px;
+      line-height: 1.6;
+    }
+  </style>
 </head>
 
-<body style="
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans TC',sans-serif;
-  background:#fbf7ef;
-">
+<body>
 
-  <div style="
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:24px;
-    box-sizing:border-box;
-  ">
+<div class="page">
+  <div class="card">
 
-    <div style="text-align:center;max-width:420px">
+    <div class="flag">🇯🇵</div>
 
-      <div style="font-size:64px">🇯🇵</div>
+    <h1>沖繩代購</h1>
 
-      <h1 style="color:#17324d;margin-bottom:8px">
-        沖繩代購
-      </h1>
+    <div class="version">
+      PWA V2.0｜API 連線測試
+    </div>
 
-      <div style="
-        display:inline-block;
-        background:#dcfce7;
-        color:#166534;
-        padding:7px 12px;
-        border-radius:999px;
-        font-weight:800;
-      ">
-        PWA V2.0
-      </div>
+    <button id="testBtn" onclick="testApi()">
+      測試 V2 API
+    </button>
 
-      <p style="
-        color:#6b7280;
-        line-height:1.8;
-        margin-top:24px;
-      ">
-        iPhone・Android 共用<br>
-        V2.0 前端測試成功 🎉
-      </p>
+    <div id="result">
+      尚未測試
+    </div>
 
+    <div class="small">
+      本次測試只會執行 ping。<br>
+      不會讀取、修改或刪除 Google Sheets 資料。
     </div>
 
   </div>
+</div>
+
+<script>
+
+const API_URL =
+  'https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
+
+
+async function testApi() {
+
+  const button = document.getElementById('testBtn');
+  const result = document.getElementById('result');
+
+  button.disabled = true;
+  button.textContent = '連線測試中…';
+
+  result.className = '';
+  result.innerHTML = '正在連接 Apps Script V2 API…';
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+
+      // 先使用 simple request，
+      // 避免瀏覽器先送 OPTIONS preflight。
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      },
+
+      body: JSON.stringify({
+        v2: true,
+        action: 'ping'
+      }),
+
+      redirect: 'follow'
+    });
+
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch (e) {
+      throw new Error(
+        '伺服器有回應，但不是 JSON。HTTP ' +
+        response.status +
+        '｜' +
+        text.substring(0, 150)
+      );
+    }
+
+    if (data.ok === true) {
+
+      result.className = 'success';
+
+      result.innerHTML =
+        '<strong>✅ V2 API 連線成功！</strong><br><br>' +
+        'API：' + escapeHtml(data.api || '') + '<br>' +
+        '版本：' + escapeHtml(data.version || '') + '<br>' +
+        '訊息：' + escapeHtml(data.message || '');
+
+    } else {
+
+      throw new Error(
+        data.message || 'API 回傳失敗'
+      );
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+
+    result.className = 'error';
+
+    result.innerHTML =
+      '<strong>❌ V2 API 連線失敗</strong><br><br>' +
+      escapeHtml(error.message) +
+      '<br><br>' +
+      '先不要修改其他設定，把這個畫面截圖給我。';
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = '重新測試 V2 API';
+
+  }
+}
+
+
+function escapeHtml(value) {
+
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+}
+
+</script>
 
 </body>
 </html>
