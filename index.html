@@ -54,7 +54,7 @@ button:disabled{opacity:.55;pointer-events:none}
 <div class="top"><div class="brand">🇯🇵 沖繩代購</div><div id="sync" class="sync">⟳ 連線中…</div></div>
 <div class="user"><button class="who" data-u="秉謙">👨 秉謙</button><button class="who" data-u="孟欣">👩 孟欣</button><button class="pill" onclick="loadData(true)">🔄 更新</button></div>
 <div class="row" style="margin-top:9px"><span class="small">💱 1 JPY =</span><input id="fx" type="number" step=".001" style="width:90px;padding:7px" oninput="updatePriceHints()"><span class="small">TWD</span><button class="pill" onclick="saveRate()">儲存</button></div>
-<div class="version" id="version">前端 V3.0.9</div><div class="version" id="countInfo" style="font-weight:800;color:#374151">訂單 0｜採買紀錄 0</div><div class="error" id="errorBox"></div>
+<div class="version" id="version">前端 V3.0.10</div><div class="version" id="countInfo" style="font-weight:800;color:#374151">訂單 0｜採買紀錄 0</div><div class="error" id="errorBox"></div>
 </header>
 <main>
 <section id="order" class="screen on">
@@ -86,6 +86,7 @@ button:disabled{opacity:.55;pointer-events:none}
 <script>
 var user='', data={orders:[],purchases:[],history:[],rate:.210,version:'',summary:{}}, orderPhotoDataUrl='', apiBusy=false, cameraStream=null, cameraTrack=null, cameraDevices=[], currentCameraDeviceId='', cameraRequestId=0, installPrompt=null;
 var API_URL='https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
+var dataRevision=0;
 var WRITE_ACTIONS={createOrder:1,recordPurchase:1,updateOrder:1,toggleCancel:1,updatePurchase:1,togglePayment:1,setRate:1};
 function el(id){return document.getElementById(id)} function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')} function jsq(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 function yen(n){return '¥'+Math.round(Number(n)||0).toLocaleString()} function setSync(t,b){el('sync').textContent=t;el('sync').style.color=b?'#b91c1c':'#17864b'}
@@ -97,10 +98,37 @@ function setCurrentUser(n,remember,tip){if(n!=='秉謙'&&n!=='孟欣')return;use
 function chooseIdentity(n){setCurrentUser(n,true,true)} function initDeviceUser(){var s=getSavedUser();if(s)setCurrentUser(s,false,false);else el('identityOverlay').classList.add('on')}
 document.querySelectorAll('.who').forEach(function(b){b.onclick=function(){setCurrentUser(b.dataset.u,true,true)}})
 function payload(o){if(!user){el('identityOverlay').classList.add('on');throw new Error('請先選擇操作人')}o=o||{};o.user=user;return o}
-function applyData(x){if(!x||x.ok!==true)throw new Error((x&&x.message)||'後端沒有回傳有效資料');data=x;if(!Array.isArray(data.orders))data.orders=[];if(!Array.isArray(data.purchases))data.purchases=[];if(!Array.isArray(data.history))data.history=[];data.rate=Number(data.rate)||.210;el('fx').value=data.rate.toFixed(3);el('version').textContent='前端 V3.0.9｜後端 V'+(data.version||'?')+(data.syncedAt?'｜'+data.syncedAt:'');el('countInfo').textContent='訂單 '+data.orders.length+'｜採買紀錄 '+data.purchases.length;setSync('☁ 已同步',false);showError('');updatePriceHints();render()}
+function applyData(x){if(!x||x.ok!==true)throw new Error((x&&x.message)||'後端沒有回傳有效資料');data=x;if(!Array.isArray(data.orders))data.orders=[];if(!Array.isArray(data.purchases))data.purchases=[];if(!Array.isArray(data.history))data.history=[];data.rate=Number(data.rate)||.210;el('fx').value=data.rate.toFixed(3);el('version').textContent='前端 V3.0.10｜後端 V'+(data.version||'?')+(data.syncedAt?'｜'+data.syncedAt:'');el('countInfo').textContent='訂單 '+data.orders.length+'｜採買紀錄 '+data.purchases.length;setSync('☁ 已同步',false);showError('');updatePriceHints();render()}
 async function fetchApi(action,p){var r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({v2:true,action:action,payload:p||{}}),redirect:'follow',cache:'no-store'});var text=(await r.text()).replace(/^\uFEFF/,'').trim();if(!r.ok)throw new Error('HTTP '+r.status);try{return JSON.parse(text)}catch(e){var er=new Error('伺服器回傳不是有效 JSON');er.nonJson=true;throw er}}
 async function recoverAfterWrite(done){setSync('⟳ 重新確認資料…',false);for(var i=0;i<2;i++){try{await new Promise(function(r){setTimeout(r,600+i*500)});var x=await fetchApi('getData',{});applyData(x);toast('操作後已重新同步最新資料');if(done)done(x);return true}catch(e){}}return false}
-async function callApi(action,p,done){if(apiBusy&&WRITE_ACTIONS[action]){toast('上一個操作還在同步，請稍候');return}var isWrite=!!WRITE_ACTIONS[action];if(isWrite)apiBusy=true;setSync('⟳ 同步中…',false);showError('');try{var x=await fetchApi(action,p);if(!x||x.ok!==true)throw new Error((x&&x.message)||'API 執行失敗');applyData(x);if(done)done(x)}catch(err){if(isWrite&&err.nonJson){var ok=await recoverAfterWrite(done);if(!ok)failure('操作可能已送出，但無法重新確認。請按「更新」確認，請勿重複點擊。')}else failure(err)}finally{if(isWrite)apiBusy=false}}
+async function callApi(action,p,done){
+  if(apiBusy){toast('上一個操作還在同步，請稍候');return}
+  var isWrite=!!WRITE_ACTIONS[action],orderSaved=false;
+  if(isWrite){apiBusy=true;dataRevision++}
+  var revision=dataRevision;
+  setSync('⟳ 同步中…',false);showError('');
+  try{
+    var x=await fetchApi(action,p);
+    if(revision!==dataRevision)return;
+    if(!x||x.ok!==true)throw new Error((x&&x.message)||'API 執行失敗');
+    if(action==='updateOrder'){
+      orderSaved=true;
+      setSync('⟳ 訂單已儲存，更新損益中…',false);
+      x=await fetchApi('getData',{});
+    }
+    applyData(x);
+    if(done)done(x);
+  }catch(err){
+    if(revision!==dataRevision)return;
+    if(orderSaved){
+      var refreshed=await recoverAfterWrite(done);
+      if(!refreshed){closeM();failure('訂單已儲存，但最新損益尚未同步。請按「更新」重新取得資料，請勿重複儲存。')}
+    }else if(isWrite&&err.nonJson){
+      var ok=await recoverAfterWrite(done);
+      if(!ok)failure('操作可能已送出，但無法重新確認。請按「更新」確認，請勿重複點擊。');
+    }else failure(err);
+  }finally{if(isWrite)apiBusy=false}
+}
 function loadData(t){callApi('getData',{},function(){if(t)toast('已取得最新資料')})}
 document.querySelectorAll('.nav').forEach(function(b){b.onclick=function(){document.querySelectorAll('.nav').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.screen').forEach(function(x){x.classList.toggle('on',x.id===b.dataset.go)});render()}})
 function openNativeCamera(){startCamera()}
@@ -130,7 +158,7 @@ function aggregate(){var a={};data.orders.forEach(function(o){if(o.cancelled)ret
 var buyFilter='todo',payFilter='unpaid',orderFilter='active';
 function paintFilter(pre,a){var ids=pre==='bf'?['Todo','Done','All']:pre==='pf'?['Unpaid','Paid','All']:['Active','Cancelled','All'];ids.forEach(function(x){var b=el(pre+x);if(b)b.className='mini '+(x.toLowerCase()===a?'primary':'ghost')})}
 function setBuyFilter(v){buyFilter=v;renderBuy()} function setPayFilter(v){payFilter=v;renderPay()} function setOrderFilter(v){orderFilter=v;renderOrders()}
-function render(){renderBuy();renderPay();renderOrders()}
+function render(){renderBuy();renderPay();renderOrders();renderProfit()}
 function productPhoto(product){var order=data.orders.find(function(o){return !o.cancelled&&o.product===product&&o.photoUrl});return order?order.photoUrl:''}
 function renderBuy(){var a=aggregate(),q=(el('purchaseSearch').value||'').trim().toLowerCase(),all=Object.keys(a).map(function(p){return{p:p,x:a[p],left:Math.max(0,a[p].need-a[p].bought)}}),todo=all.filter(function(z){return z.left>0}).length;el('buyCount').textContent='待採買 '+todo+' 種｜已完成 '+(all.length-todo)+' 種｜全部 '+all.length+' 種';paintFilter('bf',buyFilter);var items=all.filter(function(z){return(!q||z.p.toLowerCase().includes(q))&&(buyFilter==='all'||(buyFilter==='todo'?z.left>0:z.left<=0))}).sort(function(a,b){return b.left-a.left});if(!items.length){el('buyList').innerHTML='<div class="empty">目前沒有符合條件的商品。</div>';return}el('buyList').innerHTML=items.map(function(it){var logs=data.purchases.filter(function(z){return z.product===it.p}).map(function(z){return '<div class="log small">🛒 '+esc(z.buyer)+'｜'+esc(z.qty)+'件｜'+yen(z.cost)+' <button class="mini warn" style="float:right;max-width:80px" onclick="editBuy(\''+jsq(z.id)+'\')">✏️ 更正</button></div>'}).join(''),photo=productPhoto(it.p),thumb=photo?'<img class="photoThumb" src="'+esc(photo)+'" alt="'+esc(it.p)+' 商品照片，點擊查看大圖" title="點擊查看大圖" loading="lazy" onclick="showPhoto(\''+jsq(photo)+'\',\''+jsq(it.p)+'\')" onerror="this.style.display=\'none\'">':'';return '<div class="card"><div class="row"><div style="display:flex;align-items:center;min-width:0">'+thumb+'<div><div class="name">'+esc(it.p)+'</div><div class="small">需求 '+it.x.need+'｜已購 '+it.x.bought+'｜<b>尚缺 '+it.left+'</b></div></div></div><button class="badge '+(it.left?'todo':'done')+'" onclick="buy(\''+jsq(it.p)+'\')">'+(it.left?'記錄採買':'✓ 已買齊')+'</button></div>'+logs+'</div>'}).join('')}
 function renderPay(){var q=(el('paySearch').value||'').trim().toLowerCase(),active=data.orders.filter(function(o){return !o.cancelled}),un=active.filter(function(o){return !o.paid}).length;el('payCount').textContent='未收 '+un+' 筆｜已收 '+(active.length-un)+' 筆｜有效訂單 '+active.length+' 筆';paintFilter('pf',payFilter);var arr=data.orders.filter(function(o){if(o.cancelled)return payFilter==='all';if(payFilter==='unpaid'&&o.paid)return false;if(payFilter==='paid'&&!o.paid)return false;return !q||(o.customer+' '+o.product+' '+o.id).toLowerCase().includes(q)}).slice().reverse();el('payList').innerHTML=arr.length?arr.map(function(o){return '<div class="card"><div class="row"><div><div class="name">'+esc(o.customer)+'</div><div class="small">'+esc(o.product)+' ×'+esc(o.qty)+'</div></div><div style="text-align:right"><b>NT$'+Math.round(Number(o.twdTotal)||0).toLocaleString()+'</b><button class="badge '+(o.paid?'paid':'unpaid')+'" onclick="togglePay(\''+jsq(o.id)+'\')">'+(o.paid?'✓ 已收款':'未收款')+'</button></div></div></div>'}).join(''):'<div class="empty">目前沒有符合條件的訂單。</div>'}
@@ -141,7 +169,7 @@ function showPhoto(url,product){openM('<h3 style="margin-top:0">🖼️ '+esc(pr
 function buy(p){var a=aggregate()[p]||{need:0,bought:0},l=Math.max(0,a.need-a.bought);openM('<h3>🛒 記錄採買｜'+esc(p)+'</h3><div class="small">目前尚缺 '+l+' 件｜採買人：'+esc(user)+'</div><label>數量</label><input id="mq" type="number" value="'+(l||1)+'"><label>實際總成本 ¥</label><input id="mcost" type="number" value="0"><label>店家／備註</label><input id="mnote"><button class="btn primary" style="margin-top:12px" onclick="saveBuy(\''+jsq(p)+'\')">儲存採買</button>')}
 function saveBuy(p){callApi('recordPurchase',payload({product:p,qty:Number(el('mq').value),cost:Number(el('mcost').value),note:el('mnote').value}),function(){closeM();toast('採買已同步')})}
 function editOrder(id){var o=data.orders.find(function(x){return x.id===id});if(!o)return;openM('<h3>✏️ 編輯訂單 '+esc(id)+'</h3><label>顧客</label><input id="ec" value="'+esc(o.customer)+'"><label>商品</label><input id="ep" value="'+esc(o.product)+'"><div class="grid"><div><label>數量</label><input id="eq" type="number" value="'+esc(o.qty)+'"></div><div><label>日幣售價</label><input id="epr" type="number" value="'+esc(o.price)+'"></div></div><label>代購台幣售價</label><input id="etwd" type="number" value="'+esc(o.twdPrice)+'"><button class="btn primary" style="margin-top:12px" onclick="saveEO(\''+jsq(id)+'\')">儲存更正</button>')}
-function saveEO(id){callApi('updateOrder',payload({id:id,customer:el('ec').value,product:el('ep').value,qty:Number(el('eq').value),price:Number(el('epr').value),twdPrice:Number(el('etwd').value)}),function(){closeM();toast('訂單已更正')})}
+function saveEO(id){callApi('updateOrder',payload({id:id,customer:el('ec').value,product:el('ep').value,qty:Number(el('eq').value),price:Number(el('epr').value),twdPrice:Number(el('etwd').value)}),function(){closeM();toast('訂單已更正，損益與相關畫面已更新')})}
 function editBuy(id){var p=data.purchases.find(function(x){return x.id===id});if(!p)return;openM('<h3>✏️ 更正採買 '+esc(id)+'</h3><label>採買人</label><input id="ebu" value="'+esc(p.buyer)+'"><label>數量</label><input id="ebq" type="number" value="'+esc(p.qty)+'"><label>總成本 ¥</label><input id="ebc" type="number" value="'+esc(p.cost)+'"><label>備註</label><input id="ebn" value="'+esc(p.note||'')+'"><button class="btn primary" style="margin-top:12px" onclick="saveEB(\''+jsq(id)+'\')">儲存更正</button>')}
 function saveEB(id){callApi('updatePurchase',payload({id:id,buyer:el('ebu').value,qty:Number(el('ebq').value),cost:Number(el('ebc').value),note:el('ebn').value}),function(){closeM();toast('採買已更正')})}
 function showHistory(id){var h=data.history.filter(function(x){return x.target===id}),s='<h3>🕘 '+esc(id)+' 異動紀錄</h3>';s+=h.length?h.map(function(x){return '<div class="log"><div class="small">'+esc(x.time)+'｜'+esc(x.who)+'</div>'+esc(x.text)+'</div>'}).join(''):'<div class="empty">目前沒有紀錄。</div>';openM(s)}
