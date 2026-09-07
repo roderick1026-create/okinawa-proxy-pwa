@@ -1,257 +1,374 @@
 <!doctype html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>沖繩代購 V2.2</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>沖繩代購 V2.3</title>
 
-  <style>
-    * { box-sizing: border-box; }
+<style>
+*{box-sizing:border-box}
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
-                   "Noto Sans TC", sans-serif;
-      background: #fbf7ef;
-      color: #17324d;
-    }
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;
+  background:#fbf7ef;
+  color:#17324d;
+}
 
-    .page {
-      min-height: 100vh;
-      padding: 24px 14px 50px;
-    }
+.page{
+  min-height:100vh;
+  padding:20px 14px 60px;
+}
 
-    .app {
-      width: 100%;
-      max-width: 460px;
-      margin: auto;
-    }
+.app{
+  width:100%;
+  max-width:460px;
+  margin:auto;
+}
 
-    .header {
-      text-align: center;
-      margin-bottom: 18px;
-    }
+.header{
+  text-align:center;
+  margin-bottom:18px;
+}
 
-    .jp {
-      font-size: 38px;
-      font-weight: 900;
-      margin-bottom: 6px;
-    }
+.jp{
+  font-size:38px;
+  font-weight:900;
+}
 
-    h1 {
-      margin: 0;
-      font-size: 30px;
-    }
+h1{
+  margin:4px 0 0;
+  font-size:30px;
+}
 
-    .version {
-      margin-top: 7px;
-      color: #64748b;
-      font-size: 14px;
-    }
+.version{
+  margin-top:7px;
+  color:#64748b;
+  font-size:14px;
+}
 
-    .card {
-      background: #fff;
-      border-radius: 22px;
-      padding: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 8px 30px rgba(0,0,0,.06);
-    }
+.card{
+  background:#fff;
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:15px;
+  box-shadow:0 8px 30px rgba(0,0,0,.06);
+}
 
-    .sectionTitle {
-      font-size: 18px;
-      font-weight: 900;
-      margin-bottom: 16px;
-    }
+.sectionTitle{
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:15px;
+}
 
-    label {
-      display: block;
-      font-size: 14px;
-      font-weight: 700;
-      margin: 13px 0 6px;
-    }
+label{
+  display:block;
+  font-size:14px;
+  font-weight:800;
+  margin:13px 0 6px;
+}
 
-    input {
-      width: 100%;
-      border: 1px solid #cbd5e1;
-      border-radius: 12px;
-      padding: 13px;
-      font-size: 16px;
-      background: #fff;
-    }
+input{
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:13px;
+  font-size:16px;
+  background:white;
+}
 
-    input:focus {
-      outline: 2px solid #bfdbfe;
-      border-color: #3b82f6;
-    }
+input:focus{
+  outline:2px solid #bfdbfe;
+  border-color:#3b82f6;
+}
 
-    .userButtons {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 5px;
-    }
+.userButtons{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
 
-    .userBtn {
-      border: 1px solid #cbd5e1;
-      background: #fff;
-      color: #17324d;
-      border-radius: 13px;
-      padding: 13px 8px;
-      font-size: 16px;
-      font-weight: 800;
-      cursor: pointer;
-    }
+.userBtn{
+  border:1px solid #cbd5e1;
+  background:white;
+  color:#17324d;
+  border-radius:13px;
+  padding:13px;
+  font-size:16px;
+  font-weight:900;
+}
 
-    .userBtn.active {
-      background: #173a59;
-      border-color: #173a59;
-      color: #fff;
-    }
+.userBtn.active{
+  background:#173a59;
+  color:white;
+  border-color:#173a59;
+}
 
-    .mainBtn {
-      width: 100%;
-      border: 0;
-      border-radius: 14px;
-      padding: 16px;
-      margin-top: 18px;
-      font-size: 17px;
-      font-weight: 900;
-      background: #173a59;
-      color: #fff;
-      cursor: pointer;
-    }
+.mainBtn{
+  width:100%;
+  border:0;
+  border-radius:14px;
+  padding:16px;
+  margin-top:18px;
+  background:#173a59;
+  color:white;
+  font-size:17px;
+  font-weight:900;
+  cursor:pointer;
+}
 
-    .mainBtn:disabled {
-      opacity: .55;
-    }
+.mainBtn:disabled{
+  opacity:.55;
+}
 
-    .syncBtn {
-      margin-top: 0;
-    }
+.syncBtn{
+  margin-top:0;
+}
 
-    .hint {
-      margin-top: 5px;
-      font-size: 13px;
-      color: #64748b;
-    }
+.status{
+  margin-top:14px;
+  padding:14px;
+  border-radius:14px;
+  background:#f1f5f9;
+  line-height:1.6;
+}
 
-    .totalBox {
-      margin-top: 15px;
-      padding: 14px;
-      border-radius: 14px;
-      background: #f1f5f9;
-    }
+.success{
+  background:#dcfce7;
+  color:#166534;
+}
 
-    .totalLabel {
-      font-size: 13px;
-      color: #64748b;
-    }
+.error{
+  background:#fee2e2;
+  color:#991b1b;
+}
 
-    .totalValue {
-      margin-top: 3px;
-      font-size: 23px;
-      font-weight: 900;
-    }
+.totalBox{
+  margin-top:15px;
+  padding:14px;
+  border-radius:14px;
+  background:#f1f5f9;
+}
 
-    .status {
-      margin-top: 14px;
-      padding: 14px;
-      border-radius: 14px;
-      background: #f1f5f9;
-      line-height: 1.65;
-    }
+.totalLabel{
+  color:#64748b;
+  font-size:13px;
+}
 
-    .success {
-      background: #dcfce7;
-      color: #166534;
-    }
+.totalValue{
+  font-size:23px;
+  font-weight:900;
+  margin-top:3px;
+}
 
-    .error {
-      background: #fee2e2;
-      color: #991b1b;
-    }
+.summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
 
-    .summary {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+.summaryBox{
+  background:#f8fafc;
+  border-radius:14px;
+  padding:14px;
+}
 
-    .summaryBox {
-      padding: 14px;
-      border-radius: 14px;
-      background: #f8fafc;
-    }
+.summaryLabel{
+  font-size:13px;
+  color:#64748b;
+}
 
-    .summaryLabel {
-      font-size: 13px;
-      color: #64748b;
-      margin-bottom: 4px;
-    }
+.summaryValue{
+  font-size:20px;
+  font-weight:900;
+  margin-top:4px;
+}
 
-    .summaryValue {
-      font-size: 20px;
-      font-weight: 900;
-    }
+.syncTime{
+  text-align:center;
+  margin-top:12px;
+  color:#64748b;
+  font-size:12px;
+}
 
-    .syncTime {
-      margin-top: 12px;
-      text-align: center;
-      color: #64748b;
-      font-size: 12px;
-    }
+/* 採買 */
 
-    .order {
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      padding: 15px;
-      margin-bottom: 11px;
-    }
+.buyItem{
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:12px;
+}
 
-    .order.cancelled {
-      opacity: .55;
-      background: #f8fafc;
-    }
+.buyDone{
+  background:#f0fdf4;
+}
 
-    .orderTop {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 9px;
-    }
+.buyTitle{
+  font-weight:900;
+  font-size:17px;
+  margin-bottom:10px;
+}
 
-    .orderId {
-      font-weight: 900;
-    }
+.buyStats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:7px;
+  margin-bottom:10px;
+}
 
-    .badge {
-      display: inline-block;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: #e0f2fe;
-      color: #075985;
-      font-size: 12px;
-      font-weight: 800;
-    }
+.stat{
+  text-align:center;
+  padding:9px 4px;
+  border-radius:10px;
+  background:#f8fafc;
+}
 
-    .cancelBadge {
-      background: #fee2e2;
-      color: #991b1b;
-    }
+.statLabel{
+  font-size:11px;
+  color:#64748b;
+}
 
-    .row {
-      color: #334155;
-      line-height: 1.7;
-      word-break: break-word;
-    }
+.statValue{
+  font-size:18px;
+  font-weight:900;
+  margin-top:2px;
+}
 
-    .empty {
-      text-align: center;
-      color: #64748b;
-      padding: 25px 5px;
-    }
-  </style>
+.need{
+  background:#fff7ed;
+}
+
+.done{
+  background:#dcfce7;
+}
+
+.buyBtn{
+  width:100%;
+  border:0;
+  border-radius:12px;
+  padding:12px;
+  background:#173a59;
+  color:white;
+  font-size:15px;
+  font-weight:900;
+}
+
+.buyBtn:disabled{
+  background:#94a3b8;
+}
+
+/* 訂單 */
+
+.order{
+  border:1px solid #e2e8f0;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:11px;
+}
+
+.order.cancelled{
+  opacity:.55;
+  background:#f8fafc;
+}
+
+.orderTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:9px;
+}
+
+.orderId{
+  font-weight:900;
+}
+
+.badge{
+  padding:4px 9px;
+  border-radius:999px;
+  background:#e0f2fe;
+  color:#075985;
+  font-size:12px;
+  font-weight:800;
+}
+
+.cancelBadge{
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.row{
+  color:#334155;
+  line-height:1.7;
+  word-break:break-word;
+}
+
+.empty{
+  text-align:center;
+  color:#64748b;
+  padding:22px 5px;
+}
+
+/* 採買輸入視窗 */
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.45);
+  z-index:999;
+  padding:20px;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+.modal.open{
+  display:flex;
+}
+
+.modalSheet{
+  width:100%;
+  max-width:460px;
+  max-height:90vh;
+  overflow:auto;
+  background:white;
+  border-radius:22px;
+  padding:20px;
+}
+
+.modalTitle{
+  font-size:20px;
+  font-weight:900;
+}
+
+.modalSub{
+  color:#64748b;
+  margin-top:5px;
+  line-height:1.5;
+}
+
+.cancelBtn{
+  width:100%;
+  border:1px solid #cbd5e1;
+  background:white;
+  color:#334155;
+  border-radius:14px;
+  padding:14px;
+  margin-top:9px;
+  font-size:16px;
+  font-weight:800;
+}
+
+.warning{
+  margin-top:10px;
+  padding:10px;
+  background:#fff7ed;
+  color:#9a3412;
+  border-radius:10px;
+  display:none;
+}
+</style>
 </head>
 
 <body>
@@ -259,165 +376,209 @@
 <div class="page">
 <div class="app">
 
-  <div class="header">
-    <div class="jp">JP</div>
-    <h1>沖繩代購</h1>
-    <div class="version">
-      PWA V2.2｜建立訂單＋跨手機同步
-    </div>
+<div class="header">
+  <div class="jp">JP</div>
+  <h1>沖繩代購</h1>
+  <div class="version">
+    PWA V2.3｜建立訂單＋採買＋跨手機同步
+  </div>
+</div>
+
+
+<!-- 建立訂單 -->
+
+<div class="card">
+
+  <div class="sectionTitle">📝 建立訂單</div>
+
+  <label>🙋 操作人</label>
+
+  <div class="userButtons">
+    <button id="user秉謙" class="userBtn"
+      onclick="selectUser('秉謙')">秉謙</button>
+
+    <button id="user孟欣" class="userBtn"
+      onclick="selectUser('孟欣')">孟欣</button>
   </div>
 
+  <label>👤 顧客</label>
+  <input id="customer" placeholder="輸入顧客姓名">
 
-  <!-- 建立訂單 -->
-  <div class="card">
+  <label>🛍 商品</label>
+  <input id="product" placeholder="輸入商品名稱">
 
-    <div class="sectionTitle">
-      📝 建立訂單
+  <label>🔢 數量</label>
+  <input id="qty" type="number" min="1" value="1"
+    oninput="updateTotal()">
+
+  <label>🇯🇵 日幣售價／件</label>
+  <input id="price" type="number" min="0" value="0">
+
+  <label>🇹🇼 代購台幣售價／件</label>
+  <input id="twdPrice" type="number" min="0" value="0"
+    oninput="updateTotal()">
+
+  <div class="totalBox">
+    <div class="totalLabel">💰 訂單台幣總額</div>
+    <div id="twdTotal" class="totalValue">NT$0</div>
+  </div>
+
+  <button id="createBtn" class="mainBtn"
+    onclick="createOrder()">
+    ➕ 建立訂單
+  </button>
+
+  <div id="createStatus" class="status">
+    尚未建立訂單
+  </div>
+
+</div>
+
+
+<!-- 採買清單 -->
+
+<div class="card">
+
+  <div class="sectionTitle">🛒 採買清單</div>
+
+  <div id="buyList">
+    <div class="empty">正在等待同步…</div>
+  </div>
+
+</div>
+
+
+<!-- 同步 -->
+
+<div class="card">
+
+  <button id="syncBtn"
+    class="mainBtn syncBtn"
+    onclick="loadData()">
+    🔄 同步最新資料
+  </button>
+
+  <div id="syncStatus" class="status">
+    尚未同步
+  </div>
+
+</div>
+
+
+<!-- 摘要 -->
+
+<div class="card">
+
+  <div class="sectionTitle">📊 同步摘要</div>
+
+  <div class="summary">
+
+    <div class="summaryBox">
+      <div class="summaryLabel">📋 訂單</div>
+      <div id="orderCount" class="summaryValue">-</div>
     </div>
 
-    <label>🙋 操作人</label>
-
-    <div class="userButtons">
-      <button id="user秉謙"
-              class="userBtn"
-              onclick="selectUser('秉謙')">
-        秉謙
-      </button>
-
-      <button id="user孟欣"
-              class="userBtn"
-              onclick="selectUser('孟欣')">
-        孟欣
-      </button>
+    <div class="summaryBox">
+      <div class="summaryLabel">🛒 採買紀錄</div>
+      <div id="purchaseCount" class="summaryValue">-</div>
     </div>
 
-
-    <label for="customer">👤 顧客</label>
-    <input id="customer"
-           type="text"
-           placeholder="例如：V2.2測試">
-
-
-    <label for="product">🛍 商品</label>
-    <input id="product"
-           type="text"
-           placeholder="例如：跨手機同步測試">
-
-
-    <label for="qty">🔢 數量</label>
-    <input id="qty"
-           type="number"
-           min="1"
-           step="1"
-           value="1"
-           oninput="updateTotal()">
-
-
-    <label for="price">🇯🇵 日幣售價／件</label>
-    <input id="price"
-           type="number"
-           min="0"
-           step="1"
-           value="0">
-
-
-    <label for="twdPrice">🇹🇼 代購台幣售價／件</label>
-    <input id="twdPrice"
-           type="number"
-           min="0"
-           step="1"
-           value="0"
-           oninput="updateTotal()">
-
-    <div class="totalBox">
-      <div class="totalLabel">💰 訂單台幣總額</div>
-      <div id="twdTotal" class="totalValue">NT$0</div>
+    <div class="summaryBox">
+      <div class="summaryLabel">💱 目前匯率</div>
+      <div id="rate" class="summaryValue">-</div>
     </div>
 
-    <button id="createBtn"
-            class="mainBtn"
-            onclick="createOrder()">
-      ➕ 建立訂單
+    <div class="summaryBox">
+      <div class="summaryLabel">⚙️ 後端版本</div>
+      <div id="backendVersion" class="summaryValue">-</div>
+    </div>
+
+  </div>
+
+  <div id="syncTime" class="syncTime"></div>
+
+</div>
+
+
+<!-- 訂單 -->
+
+<div class="card">
+
+  <div class="sectionTitle">
+    📋 Google Sheet 現有訂單
+  </div>
+
+  <div id="orderList">
+    <div class="empty">正在等待同步…</div>
+  </div>
+
+</div>
+
+</div>
+</div>
+
+
+<!-- 採買 Modal -->
+
+<div id="buyModal" class="modal">
+
+<div class="modalSheet">
+
+  <div class="modalTitle">
+    🛒 登記採買
+  </div>
+
+  <div id="buyProductName" class="modalSub"></div>
+
+  <div id="buyNeedInfo" class="status"></div>
+
+  <label>🙋 採買人</label>
+
+  <div class="userButtons">
+    <button id="buyUser秉謙"
+      class="userBtn"
+      onclick="selectUser('秉謙')">
+      秉謙
     </button>
 
-    <div id="createStatus"
-         class="status">
-      尚未建立訂單
-    </div>
-
-  </div>
-
-
-  <!-- 同步 -->
-  <div class="card">
-
-    <button id="syncBtn"
-            class="mainBtn syncBtn"
-            onclick="loadData()">
-      🔄 同步最新資料
+    <button id="buyUser孟欣"
+      class="userBtn"
+      onclick="selectUser('孟欣')">
+      孟欣
     </button>
-
-    <div id="syncStatus"
-         class="status">
-      尚未同步
-    </div>
-
   </div>
 
+  <label>🔢 本次採買數量</label>
+  <input id="buyQty"
+    type="number"
+    min="1"
+    value="1"
+    oninput="checkOverBuy()">
 
-  <!-- 摘要 -->
-  <div class="card">
+  <div id="overBuyWarning" class="warning"></div>
 
-    <div class="sectionTitle">
-      📊 同步摘要
-    </div>
+  <label>💴 實際總成本 ¥</label>
+  <input id="buyCost"
+    type="number"
+    min="0"
+    value="0">
 
-    <div class="summary">
+  <label>🏬 店家／備註</label>
+  <input id="buyNote"
+    placeholder="例如：國際通、唐吉訶德">
 
-      <div class="summaryBox">
-        <div class="summaryLabel">📋 訂單</div>
-        <div id="orderCount"
-             class="summaryValue">-</div>
-      </div>
+  <button id="saveBuyBtn"
+    class="mainBtn"
+    onclick="savePurchase()">
+    ✅ 確認採買
+  </button>
 
-      <div class="summaryBox">
-        <div class="summaryLabel">🛒 採買紀錄</div>
-        <div id="purchaseCount"
-             class="summaryValue">-</div>
-      </div>
+  <button class="cancelBtn"
+    onclick="closeBuyModal()">
+    取消
+  </button>
 
-      <div class="summaryBox">
-        <div class="summaryLabel">💱 目前匯率</div>
-        <div id="rate"
-             class="summaryValue">-</div>
-      </div>
-
-      <div class="summaryBox">
-        <div class="summaryLabel">⚙️ 後端版本</div>
-        <div id="backendVersion"
-             class="summaryValue">-</div>
-      </div>
-
-    </div>
-
-    <div id="syncTime"
-         class="syncTime"></div>
-
-  </div>
-
-
-  <!-- 訂單列表 -->
-  <div class="card">
-
-    <div class="sectionTitle">
-      📋 Google Sheet 現有訂單
-    </div>
-
-    <div id="orderList">
-      <div class="empty">正在等待同步…</div>
-    </div>
-
-  </div>
+  <div id="buyStatus"></div>
 
 </div>
 </div>
@@ -431,572 +592,821 @@ const API_URL =
 let currentUser =
   localStorage.getItem('okinawa_v2_user') || '';
 
+let currentData = {
+  orders:[],
+  purchases:[]
+};
 
-function selectUser(user) {
+let currentBuyProduct = '';
+let currentBuyLeft = 0;
 
-  currentUser = user;
+
+/* =========================
+   使用者
+========================= */
+
+function selectUser(user){
+
+  currentUser=user;
 
   localStorage.setItem(
     'okinawa_v2_user',
     user
   );
 
-  document
-    .querySelectorAll('.userBtn')
-    .forEach(function(btn) {
+  document.querySelectorAll('.userBtn')
+    .forEach(function(btn){
       btn.classList.remove('active');
     });
 
-  const selected =
-    document.getElementById('user' + user);
-
-  if (selected) {
-    selected.classList.add('active');
-  }
-
+  ['user'+user,'buyUser'+user]
+    .forEach(function(id){
+      const el=document.getElementById(id);
+      if(el) el.classList.add('active');
+    });
 }
 
 
-function restoreUser() {
+function restoreUser(){
 
-  if (
-    currentUser === '秉謙' ||
-    currentUser === '孟欣'
-  ) {
+  if(
+    currentUser==='秉謙' ||
+    currentUser==='孟欣'
+  ){
     selectUser(currentUser);
   }
-
 }
 
 
-function updateTotal() {
+/* =========================
+   訂單金額
+========================= */
 
-  const qty =
-    Number(document.getElementById('qty').value) || 0;
+function updateTotal(){
 
-  const twdPrice =
-    Number(document.getElementById('twdPrice').value) || 0;
+  const qty=
+    Number(document.getElementById('qty').value)||0;
 
-  const total =
-    Math.round(qty * twdPrice);
+  const twd=
+    Number(document.getElementById('twdPrice').value)||0;
 
-  document.getElementById('twdTotal').textContent =
-    'NT$' + total.toLocaleString('zh-TW');
-
+  document.getElementById('twdTotal').textContent=
+    'NT$'+Math.round(qty*twd).toLocaleString('zh-TW');
 }
 
 
-async function apiRequest(action, payload) {
+/* =========================
+   API
+========================= */
 
-  const response = await fetch(API_URL, {
+async function apiRequest(action,payload){
 
-    method: 'POST',
+  const response=await fetch(API_URL,{
+    method:'POST',
 
-    headers: {
-      'Content-Type':
-        'text/plain;charset=utf-8'
+    headers:{
+      'Content-Type':'text/plain;charset=utf-8'
     },
 
-    body: JSON.stringify({
-      v2: true,
-      action: action,
-      payload: payload || {}
+    body:JSON.stringify({
+      v2:true,
+      action:action,
+      payload:payload||{}
     }),
 
-    redirect: 'follow'
-
+    redirect:'follow'
   });
 
-
-  const text = await response.text();
+  const text=await response.text();
 
   let data;
 
-  try {
-
-    data = JSON.parse(text);
-
-  } catch (e) {
-
+  try{
+    data=JSON.parse(text);
+  }catch(e){
     throw new Error(
       '伺服器回傳內容不是有效 JSON'
     );
-
   }
 
-
-  if (!data || data.ok !== true) {
-
+  if(!data || data.ok!==true){
     throw new Error(
       data && data.message
         ? data.message
         : 'API 執行失敗'
     );
-
   }
 
   return data;
-
 }
 
 
-async function createOrder() {
+/* =========================
+   建立訂單
+========================= */
 
-  const status =
+async function createOrder(){
+
+  const status=
     document.getElementById('createStatus');
 
-  const btn =
+  const btn=
     document.getElementById('createBtn');
 
-  const customer =
-    document.getElementById('customer')
-      .value.trim();
+  const customer=
+    document.getElementById('customer').value.trim();
 
-  const product =
-    document.getElementById('product')
-      .value.trim();
+  const product=
+    document.getElementById('product').value.trim();
 
-  const qty =
-    Number(
-      document.getElementById('qty').value
-    );
+  const qty=
+    Number(document.getElementById('qty').value);
 
-  const price =
-    Number(
-      document.getElementById('price').value
-    );
+  const price=
+    Number(document.getElementById('price').value);
 
-  const twdPrice =
-    Number(
-      document.getElementById('twdPrice').value
-    );
+  const twdPrice=
+    Number(document.getElementById('twdPrice').value);
 
 
-  if (!currentUser) {
+  if(!currentUser){
+    showCreateError('請先選擇操作人');
+    return;
+  }
 
-    showCreateError(
-      '請先選擇操作人：秉謙或孟欣'
-    );
+  if(!customer){
+    showCreateError('請輸入顧客');
+    return;
+  }
 
+  if(!product){
+    showCreateError('請輸入商品');
+    return;
+  }
+
+  if(!Number.isFinite(qty)||qty<=0){
+    showCreateError('數量必須大於 0');
+    return;
+  }
+
+  if(!Number.isFinite(price)||price<0){
+    showCreateError('請確認日幣售價');
+    return;
+  }
+
+  if(!Number.isFinite(twdPrice)||twdPrice<0){
+    showCreateError('請確認台幣售價');
     return;
   }
 
 
-  if (!customer) {
+  btn.disabled=true;
+  btn.textContent='⟳ 正在建立訂單…';
 
-    showCreateError(
-      '請輸入顧客'
+  status.className='status';
+  status.textContent='正在寫入 Google Sheets…';
+
+
+  try{
+
+    const data=await apiRequest(
+      'createOrder',
+      {
+        user:currentUser,
+        customer:customer,
+        product:product,
+        qty:qty,
+        price:price,
+        twdPrice:twdPrice
+      }
     );
 
-    return;
-  }
-
-
-  if (!product) {
-
-    showCreateError(
-      '請輸入商品'
-    );
-
-    return;
-  }
-
-
-  if (!Number.isFinite(qty) || qty <= 0) {
-
-    showCreateError(
-      '數量必須大於 0'
-    );
-
-    return;
-  }
-
-
-  if (!Number.isFinite(price) || price < 0) {
-
-    showCreateError(
-      '請確認日幣售價'
-    );
-
-    return;
-  }
-
-
-  if (!Number.isFinite(twdPrice) || twdPrice < 0) {
-
-    showCreateError(
-      '請確認台幣售價'
-    );
-
-    return;
-  }
-
-
-  btn.disabled = true;
-
-  btn.textContent =
-    '⟳ 正在建立訂單…';
-
-  status.className = 'status';
-
-  status.textContent =
-    '正在寫入 Google Sheets…';
-
-
-  try {
-
-    const data =
-      await apiRequest(
-        'createOrder',
-        {
-          user: currentUser,
-          customer: customer,
-          product: product,
-          qty: qty,
-          price: price,
-          twdPrice: twdPrice
-        }
-      );
-
-
-    status.className =
-      'status success';
-
-    status.innerHTML =
-      '<strong>✅ 訂單建立成功</strong><br>' +
-      'Google Sheets 已更新，' +
-      '畫面也已取得最新資料。';
-
-
-    // 建立成功後直接使用後端回傳的最新資料
     renderData(data);
 
+    status.className='status success';
+    status.innerHTML=
+      '<strong>✅ 訂單建立成功</strong><br>'+
+      'Google Sheets 已更新，畫面也已取得最新資料。';
 
-    // 清空顧客與商品
-    document.getElementById('customer').value = '';
-    document.getElementById('product').value = '';
-
-    // 保留操作人
-    // 數量回到 1
-    document.getElementById('qty').value = 1;
-
-    // 價格回到 0
-    document.getElementById('price').value = 0;
-    document.getElementById('twdPrice').value = 0;
+    document.getElementById('customer').value='';
+    document.getElementById('product').value='';
+    document.getElementById('qty').value=1;
+    document.getElementById('price').value=0;
+    document.getElementById('twdPrice').value=0;
 
     updateTotal();
 
+  }catch(error){
 
-  } catch (error) {
+    showCreateError(error.message);
 
-    showCreateError(
-      error.message
-    );
+  }finally{
 
-  } finally {
-
-    btn.disabled = false;
-
-    btn.textContent =
-      '➕ 建立訂單';
-
+    btn.disabled=false;
+    btn.textContent='➕ 建立訂單';
   }
-
 }
 
 
-function showCreateError(message) {
+function showCreateError(message){
 
-  const status =
+  const status=
     document.getElementById('createStatus');
 
-  status.className =
-    'status error';
+  status.className='status error';
 
-  status.innerHTML =
-    '<strong>❌ 無法建立訂單</strong><br>' +
+  status.innerHTML=
+    '<strong>❌ 無法建立訂單</strong><br>'+
     escapeHtml(message);
-
 }
 
 
-async function loadData() {
+/* =========================
+   同步
+========================= */
 
-  const btn =
-    document.getElementById('syncBtn');
+async function loadData(){
 
-  const status =
-    document.getElementById('syncStatus');
+  const btn=document.getElementById('syncBtn');
+  const status=document.getElementById('syncStatus');
 
+  btn.disabled=true;
+  btn.textContent='⟳ 正在同步…';
 
-  btn.disabled = true;
+  status.className='status';
+  status.textContent='正在取得 Google Sheets 最新資料…';
 
-  btn.textContent =
-    '⟳ 正在同步…';
+  try{
 
-  status.className =
-    'status';
-
-  status.textContent =
-    '正在取得 Google Sheets 最新資料…';
-
-
-  try {
-
-    const data =
-      await apiRequest(
-        'getData',
-        {}
-      );
-
+    const data=await apiRequest('getData',{});
 
     renderData(data);
 
+    status.className='status success';
 
-    status.className =
-      'status success';
-
-    status.innerHTML =
-      '<strong>✅ Google Sheets 同步成功</strong><br>' +
+    status.innerHTML=
+      '<strong>✅ Google Sheets 同步成功</strong><br>'+
       '目前資料已更新。';
 
+  }catch(error){
 
-  } catch (error) {
+    status.className='status error';
 
-    status.className =
-      'status error';
-
-    status.innerHTML =
-      '<strong>❌ 同步失敗</strong><br>' +
+    status.innerHTML=
+      '<strong>❌ 同步失敗</strong><br>'+
       escapeHtml(error.message);
 
-  } finally {
+  }finally{
 
-    btn.disabled = false;
-
-    btn.textContent =
-      '🔄 同步最新資料';
-
+    btn.disabled=false;
+    btn.textContent='🔄 同步最新資料';
   }
-
 }
 
 
-function renderData(data) {
+/* =========================
+   資料顯示
+========================= */
 
-  const orders =
+function renderData(data){
+
+  currentData=data||{};
+
+  const orders=
     Array.isArray(data.orders)
       ? data.orders
       : [];
 
-  const purchases =
+  const purchases=
     Array.isArray(data.purchases)
       ? data.purchases
       : [];
 
+  currentData.orders=orders;
+  currentData.purchases=purchases;
 
-  document.getElementById('orderCount')
-    .textContent =
-      orders.length + ' 筆';
+  document.getElementById('orderCount').textContent=
+    orders.length+' 筆';
 
-  document.getElementById('purchaseCount')
-    .textContent =
-      purchases.length + ' 筆';
+  document.getElementById('purchaseCount').textContent=
+    purchases.length+' 筆';
 
-  document.getElementById('rate')
-    .textContent =
-      Number(data.rate || 0).toFixed(3);
+  document.getElementById('rate').textContent=
+    Number(data.rate||0).toFixed(3);
 
-  document.getElementById('backendVersion')
-    .textContent =
-      data.version || '?';
+  document.getElementById('backendVersion').textContent=
+    data.version||'?';
 
-  document.getElementById('syncTime')
-    .textContent =
-      '☁ 最後同步：' +
-      (
-        data.syncedAt ||
-        new Date().toLocaleString('zh-TW')
-      );
+  document.getElementById('syncTime').textContent=
+    '☁ 最後同步：'+
+    (data.syncedAt || new Date().toLocaleString('zh-TW'));
 
-
+  renderBuyList();
   renderOrders(orders);
-
 }
 
 
-function renderOrders(orders) {
+/* =========================
+   商品彙整
+========================= */
 
-  const box =
-    document.getElementById('orderList');
+function aggregateProducts(){
+
+  const map={};
+
+  currentData.orders.forEach(function(o){
+
+    const cancelled=
+      o.cancelled===true ||
+      o.status==='已取消';
+
+    if(cancelled) return;
+
+    const product=String(o.product||'').trim();
+
+    if(!product) return;
+
+    if(!map[product]){
+      map[product]={
+        product:product,
+        need:0,
+        bought:0
+      };
+    }
+
+    map[product].need+=Number(o.qty)||0;
+  });
 
 
-  if (!orders.length) {
+  currentData.purchases.forEach(function(p){
 
-    box.innerHTML =
-      '<div class="empty">' +
-      '目前沒有訂單。' +
-      '</div>';
+    const product=String(p.product||'').trim();
+
+    if(!product) return;
+
+    if(!map[product]){
+      map[product]={
+        product:product,
+        need:0,
+        bought:0
+      };
+    }
+
+    /*
+      舊版邏輯：
+      缺貨不算實際購買數量。
+    */
+
+    if(p.status!=='缺貨'){
+      map[product].bought+=Number(p.qty)||0;
+    }
+  });
+
+
+  return Object.values(map)
+    .map(function(x){
+
+      x.left=Math.max(
+        0,
+        x.need-x.bought
+      );
+
+      return x;
+    })
+    .sort(function(a,b){
+
+      if(a.left>0 && b.left===0) return -1;
+      if(a.left===0 && b.left>0) return 1;
+
+      return a.product.localeCompare(
+        b.product,
+        'zh-Hant'
+      );
+    });
+}
+
+
+/* =========================
+   採買清單
+========================= */
+
+function renderBuyList(){
+
+  const box=document.getElementById('buyList');
+
+  const items=aggregateProducts();
+
+  if(!items.length){
+
+    box.innerHTML=
+      '<div class="empty">目前沒有需要採買的商品。</div>';
 
     return;
+  }
 
+  box.innerHTML=items.map(function(x){
+
+    const finished=x.left<=0;
+
+    return `
+      <div class="buyItem ${finished?'buyDone':''}">
+
+        <div class="buyTitle">
+          ${escapeHtml(x.product)}
+        </div>
+
+        <div class="buyStats">
+
+          <div class="stat">
+            <div class="statLabel">訂購</div>
+            <div class="statValue">
+              ${numberText(x.need)}
+            </div>
+          </div>
+
+          <div class="stat">
+            <div class="statLabel">已購</div>
+            <div class="statValue">
+              ${numberText(x.bought)}
+            </div>
+          </div>
+
+          <div class="stat ${finished?'done':'need'}">
+            <div class="statLabel">尚缺</div>
+            <div class="statValue">
+              ${numberText(x.left)}
+            </div>
+          </div>
+
+        </div>
+
+        ${
+          finished
+
+          ? `<button class="buyBtn" disabled>
+               ✅ 已買齊
+             </button>`
+
+          : `<button class="buyBtn"
+               onclick='openBuyModal(${JSON.stringify(x.product)},${x.left})'>
+               🛒 登記採買
+             </button>`
+        }
+
+      </div>
+    `;
+
+  }).join('');
+}
+
+
+/* =========================
+   打開採買
+========================= */
+
+function openBuyModal(product,left){
+
+  currentBuyProduct=product;
+  currentBuyLeft=Number(left)||0;
+
+  document.getElementById('buyProductName').textContent=
+    '商品：'+product;
+
+  document.getElementById('buyNeedInfo').innerHTML=
+    '目前尚缺 <strong>'+
+    numberText(currentBuyLeft)+
+    '</strong> 件';
+
+  document.getElementById('buyQty').value=
+    currentBuyLeft>0 ? 1 : 0;
+
+  document.getElementById('buyCost').value=0;
+  document.getElementById('buyNote').value='';
+
+  document.getElementById('buyStatus').innerHTML='';
+
+  document.getElementById('overBuyWarning').style.display=
+    'none';
+
+  restoreUser();
+
+  document.getElementById('buyModal')
+    .classList.add('open');
+}
+
+
+function closeBuyModal(){
+
+  document.getElementById('buyModal')
+    .classList.remove('open');
+
+  currentBuyProduct='';
+  currentBuyLeft=0;
+}
+
+
+/* =========================
+   超買提醒
+========================= */
+
+function checkOverBuy(){
+
+  const qty=
+    Number(document.getElementById('buyQty').value)||0;
+
+  const box=
+    document.getElementById('overBuyWarning');
+
+  if(qty>currentBuyLeft){
+
+    box.style.display='block';
+
+    box.textContent=
+      '⚠️ 目前尚缺 '+currentBuyLeft+
+      ' 件，本次輸入 '+qty+
+      ' 件，會多買 '+(qty-currentBuyLeft)+' 件。';
+
+  }else{
+
+    box.style.display='none';
+  }
+}
+
+
+/* =========================
+   儲存採買
+========================= */
+
+async function savePurchase(){
+
+  const btn=
+    document.getElementById('saveBuyBtn');
+
+  const status=
+    document.getElementById('buyStatus');
+
+  const qty=
+    Number(document.getElementById('buyQty').value);
+
+  const cost=
+    Number(document.getElementById('buyCost').value);
+
+  const note=
+    document.getElementById('buyNote').value.trim();
+
+
+  if(!currentUser){
+
+    showBuyError('請先選擇採買人');
+    return;
+  }
+
+  if(!currentBuyProduct){
+
+    showBuyError('沒有選擇商品');
+    return;
+  }
+
+  if(!Number.isFinite(qty)||qty<=0){
+
+    showBuyError('採買數量必須大於 0');
+    return;
+  }
+
+  if(!Number.isFinite(cost)||cost<0){
+
+    showBuyError('請確認實際總成本');
+    return;
   }
 
 
-  const arr =
-    orders.slice().reverse();
+  /*
+    如果買超過尚缺數量，
+    再確認一次。
+  */
+
+  if(qty>currentBuyLeft){
+
+    const ok=confirm(
+      '目前尚缺 '+currentBuyLeft+
+      ' 件。\n\n'+
+      '本次輸入 '+qty+
+      ' 件，會多買 '+(qty-currentBuyLeft)+
+      ' 件。\n\n確定要繼續嗎？'
+    );
+
+    if(!ok) return;
+  }
 
 
-  box.innerHTML =
-    arr.map(function(order) {
+  btn.disabled=true;
+  btn.textContent='⟳ 正在寫入採買紀錄…';
 
-      const cancelled =
-        order.cancelled === true;
-
-      const id =
-        order.id == null
-          ? ''
-          : order.id;
-
-      const customer =
-        order.customer == null
-          ? ''
-          : order.customer;
-
-      const product =
-        order.product == null
-          ? ''
-          : order.product;
-
-      const qty =
-        order.qty == null
-          ? ''
-          : order.qty;
-
-      const creator =
-        order.creator == null
-          ? ''
-          : order.creator;
-
-      const price =
-        Number(order.price) || 0;
-
-      const twdPrice =
-        Number(order.twdPrice) || 0;
-
-      const twdTotal =
-        Number(order.twdTotal) || 0;
+  status.className='status';
+  status.textContent='正在更新 Google Sheets…';
 
 
-      return (
+  try{
 
-        '<div class="order ' +
-        (cancelled ? 'cancelled' : '') +
-        '">' +
+    const data=await apiRequest(
+      'recordPurchase',
+      {
+        user:currentUser,
+        product:currentBuyProduct,
+        qty:qty,
+        cost:cost,
+        note:note
+      }
+    );
 
-          '<div class="orderTop">' +
+    /*
+      API 已回傳最新 Google Sheets 資料。
+    */
 
-            '<div class="orderId">' +
-              escapeHtml(id) +
-            '</div>' +
+    renderData(data);
 
-            (
-              cancelled
+    status.className='status success';
 
-                ? '<span class="badge cancelBadge">' +
-                  '已取消' +
-                  '</span>'
+    status.innerHTML=
+      '<strong>✅ 採買紀錄建立成功</strong><br>'+
+      'Google Sheets 已更新。';
 
-                : '<span class="badge">' +
-                  '有效訂單' +
-                  '</span>'
-            ) +
+    /*
+      稍微停一下，讓使用者看到成功訊息。
+    */
 
-          '</div>' +
+    setTimeout(function(){
+      closeBuyModal();
+    },700);
 
+  }catch(error){
 
-          '<div class="row">' +
-            '👤 顧客：' +
-            escapeHtml(customer) +
-          '</div>' +
+    showBuyError(error.message);
 
+  }finally{
 
-          '<div class="row">' +
-            '🛍 商品：' +
-            escapeHtml(product) +
-          '</div>' +
-
-
-          '<div class="row">' +
-            '🔢 數量：' +
-            escapeHtml(qty) +
-          '</div>' +
-
-
-          '<div class="row">' +
-            '🇯🇵 日幣售價：¥' +
-            Math.round(price)
-              .toLocaleString('zh-TW') +
-            ' / 件' +
-          '</div>' +
-
-
-          '<div class="row">' +
-            '🇹🇼 台幣售價：NT$' +
-            Math.round(twdPrice)
-              .toLocaleString('zh-TW') +
-            ' / 件' +
-          '</div>' +
-
-
-          '<div class="row">' +
-            '💰 訂單總額：NT$' +
-            Math.round(twdTotal)
-              .toLocaleString('zh-TW') +
-          '</div>' +
-
-
-          (
-            creator
-
-              ? '<div class="row">' +
-                '🙋 建單：' +
-                escapeHtml(creator) +
-                '</div>'
-
-              : ''
-          ) +
-
-        '</div>'
-
-      );
-
-    }).join('');
-
+    btn.disabled=false;
+    btn.textContent='✅ 確認採買';
+  }
 }
 
 
-function escapeHtml(value) {
+function showBuyError(message){
+
+  const status=
+    document.getElementById('buyStatus');
+
+  status.className='status error';
+
+  status.innerHTML=
+    '<strong>❌ 無法記錄採買</strong><br>'+
+    escapeHtml(message);
+}
+
+
+/* =========================
+   訂單列表
+========================= */
+
+function renderOrders(orders){
+
+  const box=document.getElementById('orderList');
+
+  if(!orders.length){
+
+    box.innerHTML=
+      '<div class="empty">目前沒有訂單。</div>';
+
+    return;
+  }
+
+  const arr=orders.slice().reverse();
+
+  box.innerHTML=arr.map(function(order){
+
+    const cancelled=
+      order.cancelled===true ||
+      order.status==='已取消';
+
+    const id=order.id||'';
+    const customer=order.customer||'';
+    const product=order.product||'';
+    const qty=Number(order.qty)||0;
+    const creator=order.creator||'';
+
+    const price=Number(order.price)||0;
+    const twdPrice=Number(order.twdPrice)||0;
+
+    /*
+      如果後端沒有 twdTotal，
+      前端自行計算。
+    */
+
+    const twdTotal=
+      Number(order.twdTotal) ||
+      (qty*twdPrice);
+
+    return `
+
+      <div class="order ${cancelled?'cancelled':''}">
+
+        <div class="orderTop">
+
+          <div class="orderId">
+            ${escapeHtml(id)}
+          </div>
+
+          ${
+            cancelled
+
+            ? '<span class="badge cancelBadge">已取消</span>'
+
+            : '<span class="badge">有效訂單</span>'
+          }
+
+        </div>
+
+        <div class="row">
+          👤 顧客：${escapeHtml(customer)}
+        </div>
+
+        <div class="row">
+          🛍 商品：${escapeHtml(product)}
+        </div>
+
+        <div class="row">
+          🔢 數量：${numberText(qty)}
+        </div>
+
+        <div class="row">
+          🇯🇵 日幣售價：¥${money(price)}／件
+        </div>
+
+        <div class="row">
+          🇹🇼 台幣售價：NT$${money(twdPrice)}／件
+        </div>
+
+        <div class="row">
+          💰 訂單總額：NT$${money(twdTotal)}
+        </div>
+
+        ${
+          creator
+          ? `<div class="row">
+               🙋 建單：${escapeHtml(creator)}
+             </div>`
+          : ''
+        }
+
+      </div>
+    `;
+
+  }).join('');
+}
+
+
+/* =========================
+   小工具
+========================= */
+
+function money(value){
+
+  return Math.round(Number(value)||0)
+    .toLocaleString('zh-TW');
+}
+
+
+function numberText(value){
+
+  const n=Number(value)||0;
+
+  if(Number.isInteger(n)){
+    return n.toLocaleString('zh-TW');
+  }
+
+  return n.toLocaleString('zh-TW');
+}
+
+
+function escapeHtml(value){
 
   return String(
-    value == null
-      ? ''
-      : value
+    value==null ? '' : value
   )
-  .replaceAll('&', '&amp;')
-  .replaceAll('<', '&lt;')
-  .replaceAll('>', '&gt;')
-  .replaceAll('"', '&quot;')
-  .replaceAll("'", '&#039;');
-
+  .replaceAll('&','&amp;')
+  .replaceAll('<','&lt;')
+  .replaceAll('>','&gt;')
+  .replaceAll('"','&quot;')
+  .replaceAll("'",'&#039;');
 }
 
 
-// 頁面開啟
+/* =========================
+   頁面啟動
+========================= */
+
 restoreUser();
 updateTotal();
-
-// 開啟後自動抓最新資料
 loadData();
 
 </script>
