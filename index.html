@@ -54,7 +54,7 @@ button:disabled{opacity:.55;pointer-events:none}
 <div class="top"><div class="brand">🇯🇵 沖繩代購</div><div id="sync" class="sync">⟳ 連線中…</div></div>
 <div class="user"><button class="who" data-u="秉謙">👨 秉謙</button><button class="who" data-u="孟欣">👩 孟欣</button><button class="pill" onclick="loadData(true)">🔄 更新</button></div>
 <div class="row" style="margin-top:9px"><span class="small">💱 1 JPY =</span><input id="fx" type="number" step=".001" style="width:90px;padding:7px" oninput="updatePriceHints()"><span class="small">TWD</span><button class="pill" onclick="saveRate()">儲存</button></div>
-<div class="version" id="version">前端 V3.0.10</div><div class="version" id="countInfo" style="font-weight:800;color:#374151">訂單 0｜採買紀錄 0</div><div class="error" id="errorBox"></div>
+<div class="version" id="version">前端 V3.0.11</div><div class="version" id="countInfo" style="font-weight:800;color:#374151">訂單 0｜採買紀錄 0</div><div class="error" id="errorBox"></div>
 </header>
 <main>
 <section id="order" class="screen on">
@@ -86,7 +86,6 @@ button:disabled{opacity:.55;pointer-events:none}
 <script>
 var user='', data={orders:[],purchases:[],history:[],rate:.210,version:'',summary:{}}, orderPhotoDataUrl='', apiBusy=false, cameraStream=null, cameraTrack=null, cameraDevices=[], currentCameraDeviceId='', cameraRequestId=0, installPrompt=null;
 var API_URL='https://script.google.com/macros/s/AKfycbxb56_ensfbWU_Znz1MYFVm5BEFJzZ-_O-nRNWj4VIyyN7ClPob7vNz5A6SUckbYEXV/exec';
-var dataRevision=0;
 var WRITE_ACTIONS={createOrder:1,recordPurchase:1,updateOrder:1,toggleCancel:1,updatePurchase:1,togglePayment:1,setRate:1};
 function el(id){return document.getElementById(id)} function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')} function jsq(s){return String(s==null?'':s).replace(/\\/g,'\\\\').replace(/'/g,"\\'")}
 function yen(n){return '¥'+Math.round(Number(n)||0).toLocaleString()} function setSync(t,b){el('sync').textContent=t;el('sync').style.color=b?'#b91c1c':'#17864b'}
@@ -98,37 +97,10 @@ function setCurrentUser(n,remember,tip){if(n!=='秉謙'&&n!=='孟欣')return;use
 function chooseIdentity(n){setCurrentUser(n,true,true)} function initDeviceUser(){var s=getSavedUser();if(s)setCurrentUser(s,false,false);else el('identityOverlay').classList.add('on')}
 document.querySelectorAll('.who').forEach(function(b){b.onclick=function(){setCurrentUser(b.dataset.u,true,true)}})
 function payload(o){if(!user){el('identityOverlay').classList.add('on');throw new Error('請先選擇操作人')}o=o||{};o.user=user;return o}
-function applyData(x){if(!x||x.ok!==true)throw new Error((x&&x.message)||'後端沒有回傳有效資料');data=x;if(!Array.isArray(data.orders))data.orders=[];if(!Array.isArray(data.purchases))data.purchases=[];if(!Array.isArray(data.history))data.history=[];data.rate=Number(data.rate)||.210;el('fx').value=data.rate.toFixed(3);el('version').textContent='前端 V3.0.10｜後端 V'+(data.version||'?')+(data.syncedAt?'｜'+data.syncedAt:'');el('countInfo').textContent='訂單 '+data.orders.length+'｜採買紀錄 '+data.purchases.length;setSync('☁ 已同步',false);showError('');updatePriceHints();render()}
+function applyData(x){if(!x||x.ok!==true)throw new Error((x&&x.message)||'後端沒有回傳有效資料');data=x;if(!Array.isArray(data.orders))data.orders=[];if(!Array.isArray(data.purchases))data.purchases=[];if(!Array.isArray(data.history))data.history=[];data.rate=Number(data.rate)||.210;el('fx').value=data.rate.toFixed(3);el('version').textContent='前端 V3.0.11｜後端 V'+(data.version||'?')+(data.syncedAt?'｜'+data.syncedAt:'');el('countInfo').textContent='訂單 '+data.orders.length+'｜採買紀錄 '+data.purchases.length;setSync('☁ 已同步',false);showError('');updatePriceHints();render()}
 async function fetchApi(action,p){var r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({v2:true,action:action,payload:p||{}}),redirect:'follow',cache:'no-store'});var text=(await r.text()).replace(/^\uFEFF/,'').trim();if(!r.ok)throw new Error('HTTP '+r.status);try{return JSON.parse(text)}catch(e){var er=new Error('伺服器回傳不是有效 JSON');er.nonJson=true;throw er}}
 async function recoverAfterWrite(done){setSync('⟳ 重新確認資料…',false);for(var i=0;i<2;i++){try{await new Promise(function(r){setTimeout(r,600+i*500)});var x=await fetchApi('getData',{});applyData(x);toast('操作後已重新同步最新資料');if(done)done(x);return true}catch(e){}}return false}
-async function callApi(action,p,done){
-  if(apiBusy){toast('上一個操作還在同步，請稍候');return}
-  var isWrite=!!WRITE_ACTIONS[action],orderSaved=false;
-  if(isWrite){apiBusy=true;dataRevision++}
-  var revision=dataRevision;
-  setSync('⟳ 同步中…',false);showError('');
-  try{
-    var x=await fetchApi(action,p);
-    if(revision!==dataRevision)return;
-    if(!x||x.ok!==true)throw new Error((x&&x.message)||'API 執行失敗');
-    if(action==='updateOrder'){
-      orderSaved=true;
-      setSync('⟳ 訂單已儲存，更新損益中…',false);
-      x=await fetchApi('getData',{});
-    }
-    applyData(x);
-    if(done)done(x);
-  }catch(err){
-    if(revision!==dataRevision)return;
-    if(orderSaved){
-      var refreshed=await recoverAfterWrite(done);
-      if(!refreshed){closeM();failure('訂單已儲存，但最新損益尚未同步。請按「更新」重新取得資料，請勿重複儲存。')}
-    }else if(isWrite&&err.nonJson){
-      var ok=await recoverAfterWrite(done);
-      if(!ok)failure('操作可能已送出，但無法重新確認。請按「更新」確認，請勿重複點擊。');
-    }else failure(err);
-  }finally{if(isWrite)apiBusy=false}
-}
+async function callApi(action,p,done){if(apiBusy&&WRITE_ACTIONS[action]){toast('上一個操作還在同步，請稍候');return}var isWrite=!!WRITE_ACTIONS[action];if(isWrite)apiBusy=true;setSync('⟳ 同步中…',false);showError('');try{var x=await fetchApi(action,p);if(!x||x.ok!==true)throw new Error((x&&x.message)||'API 執行失敗');applyData(x);if(done)done(x)}catch(err){if(isWrite&&err.nonJson){var ok=await recoverAfterWrite(done);if(!ok)failure('操作可能已送出，但無法重新確認。請按「更新」確認，請勿重複點擊。')}else failure(err)}finally{if(isWrite)apiBusy=false}}
 function loadData(t){callApi('getData',{},function(){if(t)toast('已取得最新資料')})}
 document.querySelectorAll('.nav').forEach(function(b){b.onclick=function(){document.querySelectorAll('.nav').forEach(function(x){x.classList.toggle('on',x===b)});document.querySelectorAll('.screen').forEach(function(x){x.classList.toggle('on',x.id===b.dataset.go)});render()}})
 function openNativeCamera(){startCamera()}
