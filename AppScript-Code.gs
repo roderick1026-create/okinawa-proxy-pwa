@@ -1,4 +1,4 @@
-const APP_VERSION = '1.7.1';
+const APP_VERSION = '4.0.3';
 
 // V3.2 外部 PWA 專用平衡模式。
 // 原本 V1.6.5 的 api() 維持既有行為；apiFast_() 會避免完整重畫儀表板，
@@ -498,7 +498,13 @@ function getData_() {
       ownerAllocatedCostJpy[owner]=(ownerAllocatedCostJpy[owner]||0)+part;
       assignedCost+=part;
     });
-    var leftover=Math.max(0,cost-assignedCost),fallback=productOrdersForFallback[String(p.product||'')]||[];
+    // V4.0.3 會將同一商品、不同喊單日幣售價分開採買。沒有分配資料的
+    // 舊紀錄才使用 fallback，且仍必須限定在相同售價組，避免成本混算。
+    var purchasePrice=Number(p.orderPrice)||0;
+    var fallback=(productOrdersForFallback[String(p.product||'')]||[]).filter(function(o){
+      return !purchasePrice || Number(o.price)===purchasePrice;
+    });
+    var leftover=Math.max(0,cost-assignedCost);
     var fallbackQty=fallback.reduce(function(sum,o){return sum+(Number(o.qty)||0);},0);
     if(leftover>0&&fallbackQty>0)fallback.forEach(function(o){
       var owner=String(o.creator||'未指定'),part=leftover*(Number(o.qty)||0)/fallbackQty;
@@ -880,7 +886,6 @@ function updateOrder_(p) {
   var qty=Number(p.qty), jpyPrice=Number(p.price), twdPrice=Number(p.twdPrice), user=String(p.user||''), now=new Date();
   if(!customer||!product) throw new Error('顧客與商品不可空白');
   if(!qty||qty<=0) throw new Error('數量必須大於 0');
-  if(p.expectedModified&&dateText_(old[12])!==String(p.expectedModified)) throw new Error('訂單已被另一支手機修改，請按「更新」取得最新資料');
   if(isNaN(jpyPrice)||jpyPrice<0) jpyPrice=0;
   if(isNaN(twdPrice)||twdPrice<0) twdPrice=0;
   if(p.expectedModified&&dateText_(old[12])!==String(p.expectedModified)){
