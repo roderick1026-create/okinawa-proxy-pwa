@@ -12,14 +12,10 @@
     Object.keys(draft).forEach(function (name) { copy[name] = draft[name]; });
     if (match) {
       copy.note = rawNote.slice(0, match.index);
-      copy.unitCost = Number(match[1]);
     }
     return copy;
   }
 
-  function draftNoteWithUnit(note, unitCost) {
-    return String(note || '').replace(DRAFT_UNIT_SUFFIX, '') + '\n[[OKINAWA_DRAFT_UNIT:' + unitCost + ']]';
-  }
   function purchaseKeyInfo(key) {
     return priceGroupInfo(key);
   }
@@ -44,10 +40,6 @@
       '<label>目前需求數量</label>' +
       '<div class="small" style="padding:10px 0;font-weight:800">' + limit + ' 件　<span style="font-weight:400;color:#52606d">數量請從「需求管理」修改</span></div>' +
       '<input id="mq" type="hidden" value="' + limit + '">' +
-      '<label>實際採買單價 ¥／件</label>' +
-      '<input id="mcost" type="number" min="0" value="' + (isFinite(Number(draft.unitCost)) && Number(draft.unitCost) >= 0 ? Number(draft.unitCost) : info.price) + '">' +
-      '<label>實際購入商品／規格（選填）</label>' +
-      '<input id="mactual" value="' + esc(draft.actualProduct || '') + '" placeholder="未填則使用：' + esc(info.product) + '">' +
       '<label>商品照片（從相簿選擇）</label>' +
       '<input id="purchasePhotoInput" type="file" accept="image/*" onchange="selectPurchasePhoto(this)">' +
       '<img id="purchasePhotoPreview" class="photoThumb" style="' + (activeDraftPhotoUrl ? 'display:block' : 'display:none') + ';margin-top:8px" src="' + esc(activeDraftPhotoUrl) + '" alt="商品照片預覽">' +
@@ -63,7 +55,7 @@
   function savePurchase(key) {
     var info = purchaseKeyInfo(key);
     var qty = Number(el('mq').value);
-    var unit = Number(el('mcost').value);
+    var unit = Number(info.price);
     var limit = purchaseLimit(key);
     var allocations = allocationPayload();
     var allocatedQty = allocationTotal();
@@ -79,7 +71,7 @@
       return;
     }
     var note = el('mnote').value;
-    var actualProduct = String(el('mactual').value || '').trim() || info.product;
+    var actualProduct = info.product;
     var method = '現金';
     var temporaryId = 'TEMP-' + Date.now();
     var photo = purchasePhotoDataUrl;
@@ -112,13 +104,7 @@
 
   async function saveDraft(key) {
     var info = purchaseKeyInfo(key);
-    var unitCost = Number(el('mcost').value);
-    var actualProduct = String(el('mactual').value || '').trim();
     var note = String(el('mnote').value || '').trim();
-    if (!isFinite(unitCost) || unitCost < 0) {
-      alert('請確認實際採買單價');
-      return;
-    }
     if (apiBusy) { toast('上一個操作還在同步，請稍候'); return; }
     var button = el('saveDraftBtn');
     if (button) { button.disabled = true; button.textContent = '⏳ 儲存中…'; }
@@ -128,8 +114,7 @@
     try {
       var latest = await fetchApi('savePurchaseDraft', payload({
         key: key, product: info.product, orderPrice: info.price,
-        unitCost: unitCost,
-        actualProduct: actualProduct, note: draftNoteWithUnit(note, unitCost), photoDataUrl: purchasePhotoDataUrl,
+        note: note, photoDataUrl: purchasePhotoDataUrl,
         requestId: paymentRequestId()
       }));
       if (!latest || latest.ok !== true) throw new Error((latest && latest.message) || '商品資訊儲存失敗');
@@ -160,8 +145,8 @@
       var detail = document.createElement('div');
       detail.className = 'purchaseDraftInfo small';
       detail.style.cssText = 'display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:#52606d;font-weight:700';
-      var title = draft.actualProduct || draft.product || '已儲存商品資訊';
-      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer" alt="商品草稿縮圖，點擊查看原圖" title="點擊查看原圖" onclick="showPhoto(\'' + jsq(draft.photoUrl) + '\',\'' + jsq(draft.product || title) + '\')">' : '') + '<span>💾 實際購入商品／規格：' + esc(title) + (isFinite(Number(draft.unitCost)) ? '<br><span style="font-weight:400">暫存單價：¥' + Number(draft.unitCost).toLocaleString() + '／件</span>' : '') + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
+      var title = draft.product || '已儲存商品資訊';
+      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer" alt="商品草稿縮圖，點擊查看原圖" title="點擊查看原圖" onclick="showPhoto(\'' + jsq(draft.photoUrl) + '\',\'' + jsq(draft.product || title) + '\')">' : '') + '<span>💾 已儲存商品資訊' + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
       var row = card.querySelector('.row');
       if (row) row.insertAdjacentElement('afterend', detail);
       else card.insertAdjacentElement('afterend', detail);
@@ -306,5 +291,5 @@
     el('payTotal').innerHTML = unpaid.length ? '待收款 ' + unpaid.length + ' 筆｜合計 NT$' + Math.round(unpaid.reduce(function (sum, order) { return sum + orderTwd(order); }, 0)).toLocaleString() + '<small>此總額只包含目前喊單人篩選下的未收款有效訂單</small>' : '✅ 目前篩選條件下沒有待收款項目';
   };
   window.setPaymentOwnerFilter = setPaymentOwnerFilter;
-  window.OkinawaPwaV4054 = { version: '4.0.5.18', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.19', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
