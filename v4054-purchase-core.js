@@ -209,5 +209,83 @@
   WRITE_ACTIONS.savePurchaseDraft = 1;
   var renderBuyWithDrafts = renderBuy;
   renderBuy = function () { renderBuyWithDrafts(); showDraftsInBuyList(); };
-  window.OkinawaPwaV4054 = { version: '4.0.5.13', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  // 收款頁依喊單人分開檢視；篩選後的合計與批次收款只處理該喊單人的訂單。
+  var paymentOwnerFilter = '';
+  function paymentOwnerOrders() {
+    return data.orders.filter(function (order) {
+      return !order.cancelled && (!paymentOwnerFilter || order.creator === paymentOwnerFilter);
+    });
+  }
+  function ensurePaymentOwnerFilters() {
+    if (el('payOwnerFilters')) return;
+    el('payCount').insertAdjacentHTML('beforebegin',
+      '<div class="actions" id="payOwnerFilters" style="margin-top:10px">' +
+      '<button class="mini ghost" onclick="setPaymentOwnerFilter(\'\')">全部喊單</button>' +
+      '<button class="mini ghost" onclick="setPaymentOwnerFilter(\'孟欣\')">👩 孟欣</button>' +
+      '<button class="mini ghost" onclick="setPaymentOwnerFilter(\'秉謙\')">👨 秉謙</button>' +
+      '</div>');
+  }
+  function setPaymentOwnerFilter(owner) {
+    paymentOwnerFilter = owner || '';
+    renderPay();
+  }
+  setCustomerPaymentStatus = async function (customer, paid) {
+    if (apiBusy || paymentBatchPending[customer]) { toast('上一個操作還在同步，請稍候'); return; }
+    var orders = paymentOwnerOrders().filter(function (order) { return order.customer === customer && !!order.paid !== paid; });
+    if (!orders.length) { toast('這位顧客在目前喊單人篩選下沒有可變更的收款項目'); return; }
+    if (!confirm((paid ? '確認全部標記為已收款嗎？' : '確認全部改回未收款嗎？') + (paymentOwnerFilter ? '\n只會處理「' + paymentOwnerFilter + '」建立的訂單。' : ''))) return;
+    paymentBatchPending[customer] = { done: 0, total: orders.length };
+    apiBusy = true;
+    var current = null;
+    try {
+      for (var i = 0; i < orders.length; i++) {
+        current = orders[i];
+        var result = await fetchApi('setPayment', payload({ id: current.id, paid: paid, expectedPaid: !!current.paid, requestId: paymentRequestId() }));
+        if (!result || result.ok !== true) throw new Error('訂單 ' + current.id + ' 未完成');
+        current.paid = paid;
+        paymentBatchPending[customer].done = i + 1;
+        renderPay();
+      }
+      await refreshLinkedData();
+      toast('已完成 ' + orders.length + ' 筆收款更新');
+    } catch (error) {
+      await refreshLinkedData().catch(function () {});
+      failure(error);
+    } finally {
+      delete paymentBatchPending[customer];
+      apiBusy = false;
+      renderPay();
+    }
+  };
+  renderPay = function () {
+    ensurePaymentOwnerFilters();
+    var query = (el('paySearch').value || '').trim().toLowerCase();
+    var active = paymentOwnerOrders();
+    var unpaid = active.filter(function (order) { return !order.paid; });
+    var groups = {};
+    active.forEach(function (order) { (groups[order.customer || '未填顧客'] || (groups[order.customer || '未填顧客'] = [])).push(order); });
+    Array.prototype.forEach.call(el('payOwnerFilters').querySelectorAll('button'), function (button) {
+      var owner = button.textContent.indexOf('孟欣') >= 0 ? '孟欣' : (button.textContent.indexOf('秉謙') >= 0 ? '秉謙' : '');
+      button.className = 'mini ' + (owner === paymentOwnerFilter ? 'primary' : 'ghost');
+    });
+    var list = Object.keys(groups).sort(function (a, b) { return a.localeCompare(b, 'zh-Hant'); }).map(function (customer) {
+      var orders = groups[customer], open = orders.filter(function (order) { return !order.paid; });
+      var text = (customer + ' ' + orders.map(function (order) { return order.product + ' ' + order.id; }).join(' ')).toLowerCase();
+      return { customer: customer, orders: orders, open: open, matches: !query || text.indexOf(query) >= 0 };
+    }).filter(function (group) { return group.matches && (payFilter === 'all' || (payFilter === 'unpaid' ? group.open.length : !group.open.length)); });
+    var scope = paymentOwnerFilter ? '｜' + paymentOwnerFilter + '喊單' : '｜全部喊單';
+    el('payCount').textContent = '未收 ' + unpaid.length + ' 筆｜已收 ' + (active.length - unpaid.length) + ' 筆｜有效訂單 ' + active.length + ' 筆' + scope;
+    paintFilter('pf', payFilter);
+    el('payList').innerHTML = list.length ? list.map(function (group) {
+      var allPaid = !group.open.length, amount = group.open.reduce(function (sum, order) { return sum + orderTwd(order); }, 0), batch = paymentBatchPending[group.customer];
+      var header = batch ? '處理中 ' + batch.done + '／' + batch.total : (allPaid ? '✓ 已收款' : '全部標記已收');
+      var details = group.orders.map(function (order) {
+        return '<div class="small" style="padding:8px 0;border-top:1px solid var(--line)">' + esc(order.product) + ' ×' + esc(order.qty) + '｜NT$' + Math.round(orderTwd(order)).toLocaleString() + ' <button class="mini ' + (order.paid ? 'paid' : 'primary') + '" style="float:right;max-width:76px;padding:5px" ' + (apiBusy ? 'disabled' : '') + ' onclick="setPaymentFast(\'' + jsq(order.id) + '\')">' + (order.paid ? '已收' : '未收') + '</button></div>';
+      }).join('');
+      return '<div class="card"><div class="row"><div><div class="name">' + esc(group.customer) + '</div><div class="small">未收 ' + group.open.length + ' 筆' + (group.open.length ? '｜NT$' + Math.round(amount).toLocaleString() : '｜已全部收款') + '</div></div><button class="badge ' + (allPaid ? 'paid' : 'unpaid') + '" ' + (apiBusy ? 'disabled' : '') + ' onclick="setCustomerPaymentStatus(\'' + jsq(group.customer) + '\',' + (allPaid ? 'false' : 'true') + ')">' + header + '</button></div><details class="customerPaymentDetail"><summary>查看 ' + group.orders.length + ' 筆訂單明細</summary>' + details + '</details></div>';
+    }).join('') : '<div class="empty">目前篩選條件下沒有符合的收款項目。</div>';
+    el('payTotal').innerHTML = unpaid.length ? '待收款 ' + unpaid.length + ' 筆｜合計 NT$' + Math.round(unpaid.reduce(function (sum, order) { return sum + orderTwd(order); }, 0)).toLocaleString() + '<small>此總額只包含目前喊單人篩選下的未收款有效訂單</small>' : '✅ 目前篩選條件下沒有待收款項目';
+  };
+  window.setPaymentOwnerFilter = setPaymentOwnerFilter;
+  window.OkinawaPwaV4054 = { version: '4.0.5.14', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
