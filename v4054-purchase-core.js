@@ -131,16 +131,12 @@
 
   function showDraftsInBuyList() {
     var drafts = data.drafts || [];
-    // The compact "採買清單" rows in older markup do not carry the group key.
-    // Read it from their action once so saved draft details can be shown there too.
-    Array.prototype.forEach.call(document.querySelectorAll('.quickBuyRow'), function (card) {
-      if (card.getAttribute('data-buy-key')) return;
-      var trigger = card.querySelector('[onclick*="buy("]');
-      var match = trigger && String(trigger.getAttribute('onclick') || '').match(/buy\\('([^']*)'\\)/);
-      if (match) card.setAttribute('data-buy-key', match[1]);
-    });
-    Array.prototype.forEach.call(document.querySelectorAll('[data-buy-key]'), function (card) {
-      var draft = drafts.find(function (item) { return item.key === card.getAttribute('data-buy-key'); });
+    Array.prototype.forEach.call(document.querySelectorAll('.quickBuyRow,[data-buy-key]'), function (card) {
+      var key = card.getAttribute('data-buy-key') || '';
+      var text = String(card.textContent || '');
+      var draft = drafts.find(function (item) {
+        return item.key === key || text.indexOf(priceGroupLabel(item.key)) >= 0;
+      });
       if (!draft || card.querySelector('.purchaseDraftInfo')) return;
       var detail = document.createElement('div');
       detail.className = 'purchaseDraftInfo small';
@@ -213,5 +209,5 @@
   WRITE_ACTIONS.savePurchaseDraft = 1;
   var renderBuyWithDrafts = renderBuy;
   renderBuy = function () { renderBuyWithDrafts(); showDraftsInBuyList(); };
-  window.OkinawaPwaV4054 = { version: '4.0.5.11', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.12', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
