@@ -5,12 +5,27 @@
  */
 (function () {
   var activeDraftPhotoUrl = '';
+  var DRAFT_UNIT_SUFFIX = /\n\[\[OKINAWA_DRAFT_UNIT:([0-9]+(?:\.[0-9]+)?)\]\]$/;
+
+  function normalizedDraft(item) {
+    var draft = item || {}, rawNote = String(draft.note || ''), match = rawNote.match(DRAFT_UNIT_SUFFIX), copy = {};
+    Object.keys(draft).forEach(function (name) { copy[name] = draft[name]; });
+    if (match) {
+      copy.note = rawNote.slice(0, match.index);
+      copy.unitCost = Number(match[1]);
+    }
+    return copy;
+  }
+
+  function draftNoteWithUnit(note, unitCost) {
+    return String(note || '').replace(DRAFT_UNIT_SUFFIX, '') + '\n[[OKINAWA_DRAFT_UNIT:' + unitCost + ']]';
+  }
   function purchaseKeyInfo(key) {
     return priceGroupInfo(key);
   }
 
   function purchaseDraft(key) {
-    return ((data.drafts || []).find(function (item) { return item.key === key; })) || {};
+    return normalizedDraft((data.drafts || []).find(function (item) { return item.key === key; }));
   }
 
   function openPurchase(key) {
@@ -114,12 +129,12 @@
       var latest = await fetchApi('savePurchaseDraft', payload({
         key: key, product: info.product, orderPrice: info.price,
         unitCost: unitCost,
-        actualProduct: actualProduct, note: note, photoDataUrl: purchasePhotoDataUrl,
+        actualProduct: actualProduct, note: draftNoteWithUnit(note, unitCost), photoDataUrl: purchasePhotoDataUrl,
         requestId: paymentRequestId()
       }));
       if (!latest || latest.ok !== true) throw new Error((latest && latest.message) || '商品資訊儲存失敗');
       applyData(latest);
-      var saved = ((latest && latest.drafts) || []).find(function (item) { return item.key === key; }) || {};
+      var saved = purchaseDraft(key);
       activeDraftPhotoUrl = saved.photoUrl || activeDraftPhotoUrl;
       purchasePhotoDataUrl = '';
       if (button) { button.textContent = '✅ 已儲存'; button.disabled = false; }
@@ -141,6 +156,7 @@
         return item.key === key || text.indexOf(priceGroupLabel(item.key)) >= 0;
       });
       if (!draft || card.querySelector('.purchaseDraftInfo')) return;
+      draft = normalizedDraft(draft);
       var detail = document.createElement('div');
       detail.className = 'purchaseDraftInfo small';
       detail.style.cssText = 'display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:#52606d;font-weight:700';
@@ -290,5 +306,5 @@
     el('payTotal').innerHTML = unpaid.length ? '待收款 ' + unpaid.length + ' 筆｜合計 NT$' + Math.round(unpaid.reduce(function (sum, order) { return sum + orderTwd(order); }, 0)).toLocaleString() + '<small>此總額只包含目前喊單人篩選下的未收款有效訂單</small>' : '✅ 目前篩選條件下沒有待收款項目';
   };
   window.setPaymentOwnerFilter = setPaymentOwnerFilter;
-  window.OkinawaPwaV4054 = { version: '4.0.5.17', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.18', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
