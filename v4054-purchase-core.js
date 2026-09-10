@@ -131,6 +131,14 @@
 
   function showDraftsInBuyList() {
     var drafts = data.drafts || [];
+    // The compact "採買清單" rows in older markup do not carry the group key.
+    // Read it from their action once so saved draft details can be shown there too.
+    Array.prototype.forEach.call(document.querySelectorAll('.quickBuyRow'), function (card) {
+      if (card.getAttribute('data-buy-key')) return;
+      var trigger = card.querySelector('[onclick*="buy("]');
+      var match = trigger && String(trigger.getAttribute('onclick') || '').match(/buy\\('([^']*)'\\)/);
+      if (match) card.setAttribute('data-buy-key', match[1]);
+    });
     Array.prototype.forEach.call(document.querySelectorAll('[data-buy-key]'), function (card) {
       var draft = drafts.find(function (item) { return item.key === card.getAttribute('data-buy-key'); });
       if (!draft || card.querySelector('.purchaseDraftInfo')) return;
@@ -141,6 +149,7 @@
       detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="商品草稿縮圖">' : '') + '<span>💾 實際：' + esc(title) + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
       var row = card.querySelector('.row');
       if (row) row.insertAdjacentElement('afterend', detail);
+      else card.insertAdjacentElement('afterend', detail);
     });
   }
 
@@ -204,5 +213,5 @@
   WRITE_ACTIONS.savePurchaseDraft = 1;
   var renderBuyWithDrafts = renderBuy;
   renderBuy = function () { renderBuyWithDrafts(); showDraftsInBuyList(); };
-  window.OkinawaPwaV4054 = { version: '4.0.5.10', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.11', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
