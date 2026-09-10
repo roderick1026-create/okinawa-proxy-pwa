@@ -27,9 +27,9 @@
       '<h3>🛒 記錄採買｜' + esc(info.product) + '</h3>' +
       '<div class="small">喊單日幣售價：' + yen(info.price) + '／件｜採買人：' + esc(user) + '</div>' +
       '<label>數量（最多 ' + limit + ' 件）</label>' +
-      '<input id="mq" type="number" min="1" max="' + limit + '" step="1" value="' + limit + '" oninput="resetAllocationFromInput(\'mq\')">' +
+      '<input id="mq" type="number" min="1" max="' + limit + '" step="1" value="' + (Number.isInteger(Number(draft.qty)) && Number(draft.qty) >= 1 && Number(draft.qty) <= limit ? Number(draft.qty) : limit) + '" oninput="resetAllocationFromInput(\'mq\')">' +
       '<label>實際採買單價 ¥／件</label>' +
-      '<input id="mcost" type="number" min="0" value="' + info.price + '">' +
+      '<input id="mcost" type="number" min="0" value="' + (isFinite(Number(draft.unitCost)) && Number(draft.unitCost) >= 0 ? Number(draft.unitCost) : info.price) + '">' +
       '<label>實際購入商品／規格（選填）</label>' +
       '<input id="mactual" value="' + esc(draft.actualProduct || '') + '" placeholder="未填則使用：' + esc(info.product) + '">' +
       '<label>商品照片（從相簿選擇）</label>' +
@@ -41,7 +41,7 @@
       '<button id="saveDraftBtn" class="btn ghost" style="margin-top:12px" onclick="savePurchaseDraft(\'' + jsq(key) + '\')">💾 儲存商品資訊</button>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveBuy(\'' + jsq(key) + '\')">已採買</button>'
     );
-    beginAllocation(key, 'mq', '', []);
+    beginAllocation(key, 'mq', '', Array.isArray(draft.allocations) ? draft.allocations : []);
   }
 
   function savePurchase(key) {
@@ -96,10 +96,14 @@
 
   async function saveDraft(key) {
     var info = purchaseKeyInfo(key);
+    var qty = Number(el('mq').value);
+    var unitCost = Number(el('mcost').value);
+    var limit = purchaseLimit(key);
+    var allocations = allocationPayload();
     var actualProduct = String(el('mactual').value || '').trim();
     var note = String(el('mnote').value || '').trim();
-    if (!actualProduct && !note && !purchasePhotoDataUrl && !activeDraftPhotoUrl) {
-      alert('請至少填寫實際購入商品／規格、備註或選擇照片');
+    if (!Number.isInteger(qty) || qty < 1 || qty > limit || !isFinite(unitCost) || unitCost < 0 || allocationTotal() !== qty) {
+      alert('請確認採買數量、顧客分配與實際採買單價');
       return;
     }
     if (apiBusy) { toast('上一個操作還在同步，請稍候'); return; }
@@ -111,6 +115,7 @@
     try {
       var latest = await fetchApi('savePurchaseDraft', payload({
         key: key, product: info.product, orderPrice: info.price,
+        qty: qty, unitCost: unitCost, cost: qty * unitCost, allocations: allocations,
         actualProduct: actualProduct, note: note, photoDataUrl: purchasePhotoDataUrl,
         requestId: paymentRequestId()
       }));
@@ -142,7 +147,7 @@
       detail.className = 'purchaseDraftInfo small';
       detail.style.cssText = 'display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:#52606d;font-weight:700';
       var title = draft.actualProduct || draft.product || '已儲存商品資訊';
-      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer" alt="商品草稿縮圖，點擊查看原圖" title="點擊查看原圖" onclick="showPhoto(\'' + jsq(draft.photoUrl) + '\',\'' + jsq(draft.product || title) + '\')">' : '') + '<span>💾 實際購入商品／規格：' + esc(title) + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
+      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer" alt="商品草稿縮圖，點擊查看原圖" title="點擊查看原圖" onclick="showPhoto(\'' + jsq(draft.photoUrl) + '\',\'' + jsq(draft.product || title) + '\')">' : '') + '<span>💾 實際購入商品／規格：' + esc(title) + (Number.isInteger(Number(draft.qty)) ? '<br><span style="font-weight:400">暫存採買：' + esc(draft.qty) + ' 件｜¥' + Number(draft.unitCost || 0).toLocaleString() + '／件</span>' : '') + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
       var row = card.querySelector('.row');
       if (row) row.insertAdjacentElement('afterend', detail);
       else card.insertAdjacentElement('afterend', detail);
@@ -287,5 +292,5 @@
     el('payTotal').innerHTML = unpaid.length ? '待收款 ' + unpaid.length + ' 筆｜合計 NT$' + Math.round(unpaid.reduce(function (sum, order) { return sum + orderTwd(order); }, 0)).toLocaleString() + '<small>此總額只包含目前喊單人篩選下的未收款有效訂單</small>' : '✅ 目前篩選條件下沒有待收款項目';
   };
   window.setPaymentOwnerFilter = setPaymentOwnerFilter;
-  window.OkinawaPwaV4054 = { version: '4.0.5.15', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.16', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
