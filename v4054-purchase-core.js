@@ -142,7 +142,7 @@
       detail.className = 'purchaseDraftInfo small';
       detail.style.cssText = 'display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:#52606d;font-weight:700';
       var title = draft.actualProduct || draft.product || '已儲存商品資訊';
-      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="商品草稿縮圖">' : '') + '<span>💾 實際：' + esc(title) + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
+      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line);cursor:pointer" alt="商品草稿縮圖，點擊查看原圖" title="點擊查看原圖" onclick="showPhoto(\'' + jsq(draft.photoUrl) + '\',\'' + jsq(draft.product || title) + '\')">' : '') + '<span>💾 實際購入商品／規格：' + esc(title) + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
       var row = card.querySelector('.row');
       if (row) row.insertAdjacentElement('afterend', detail);
       else card.insertAdjacentElement('afterend', detail);
@@ -209,5 +209,5 @@
   WRITE_ACTIONS.savePurchaseDraft = 1;
   var renderBuyWithDrafts = renderBuy;
   renderBuy = function () { renderBuyWithDrafts(); showDraftsInBuyList(); };
-  window.OkinawaPwaV4054 = { version: '4.0.5.12', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.13', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
