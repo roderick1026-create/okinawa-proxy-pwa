@@ -38,7 +38,7 @@
       '<label>店家／備註</label><input id="mnote" value="' + esc(draft.note || '') + '">' +
       '<div id="allocationEditor"></div>' +
       '<div class="small" style="margin-top:8px;color:#52606d">現場只能買部分數量時，先在顧客分配選擇實際買到的件數；儲存時會依已分配數量記錄，剩下的會繼續保留在待採買。</div>' +
-      '<button class="btn ghost" style="margin-top:12px" onclick="savePurchaseDraft(\'' + jsq(key) + '\')">💾 儲存商品資訊</button>' +
+      '<button id="saveDraftBtn" class="btn ghost" style="margin-top:12px" onclick="savePurchaseDraft(\'' + jsq(key) + '\')">💾 儲存商品資訊</button>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveBuy(\'' + jsq(key) + '\')">已採買</button>'
     );
     beginAllocation(key, 'mq', '', []);
@@ -94,7 +94,7 @@
     });
   }
 
-  function saveDraft(key) {
+  async function saveDraft(key) {
     var info = purchaseKeyInfo(key);
     var actualProduct = String(el('mactual').value || '').trim();
     var note = String(el('mnote').value || '').trim();
@@ -102,15 +102,45 @@
       alert('請至少填寫實際購入商品／規格、備註或選擇照片');
       return;
     }
-    callApi('savePurchaseDraft', payload({
-      key: key, product: info.product, orderPrice: info.price,
-      actualProduct: actualProduct, note: note, photoDataUrl: purchasePhotoDataUrl,
-      requestId: paymentRequestId()
-    }), function (latest) {
+    if (apiBusy) { toast('上一個操作還在同步，請稍候'); return; }
+    var button = el('saveDraftBtn');
+    if (button) { button.disabled = true; button.textContent = '⏳ 儲存中…'; }
+    apiBusy = true;
+    setSync('⟳ 正在儲存商品資訊…', false);
+    showError('');
+    try {
+      var latest = await fetchApi('savePurchaseDraft', payload({
+        key: key, product: info.product, orderPrice: info.price,
+        actualProduct: actualProduct, note: note, photoDataUrl: purchasePhotoDataUrl,
+        requestId: paymentRequestId()
+      }));
+      if (!latest || latest.ok !== true) throw new Error((latest && latest.message) || '商品資訊儲存失敗');
+      applyData(latest);
       var saved = ((latest && latest.drafts) || []).find(function (item) { return item.key === key; }) || {};
       activeDraftPhotoUrl = saved.photoUrl || activeDraftPhotoUrl;
       purchasePhotoDataUrl = '';
+      if (button) { button.textContent = '✅ 已儲存'; button.disabled = false; }
       toast('商品資訊已儲存，尚未標記採買');
+    } catch (error) {
+      if (button) { button.textContent = '💾 儲存商品資訊'; button.disabled = false; }
+      failure(error);
+    } finally {
+      apiBusy = false;
+    }
+  }
+
+  function showDraftsInBuyList() {
+    var drafts = data.drafts || [];
+    Array.prototype.forEach.call(document.querySelectorAll('[data-buy-key]'), function (card) {
+      var draft = drafts.find(function (item) { return item.key === card.getAttribute('data-buy-key'); });
+      if (!draft || card.querySelector('.purchaseDraftInfo')) return;
+      var detail = document.createElement('div');
+      detail.className = 'purchaseDraftInfo small';
+      detail.style.cssText = 'display:flex;align-items:center;gap:8px;margin:8px 0 2px;color:#52606d;font-weight:700';
+      var title = draft.actualProduct || draft.product || '已儲存商品資訊';
+      detail.innerHTML = (draft.photoUrl ? '<img src="' + esc(draft.photoUrl) + '" style="width:42px;height:42px;object-fit:cover;border-radius:8px;border:1px solid var(--line)" alt="商品草稿縮圖">' : '') + '<span>💾 實際：' + esc(title) + (draft.note ? '<br><span style="font-weight:400">' + esc(draft.note) + '</span>' : '') + '</span>';
+      var row = card.querySelector('.row');
+      if (row) row.insertAdjacentElement('afterend', detail);
     });
   }
 
@@ -172,5 +202,7 @@
   window.saveEB = savePurchaseEdit;
   window.savePurchaseDraft = saveDraft;
   WRITE_ACTIONS.savePurchaseDraft = 1;
-  window.OkinawaPwaV4054 = { version: '4.0.5.9', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  var renderBuyWithDrafts = renderBuy;
+  renderBuy = function () { renderBuyWithDrafts(); showDraftsInBuyList(); };
+  window.OkinawaPwaV4054 = { version: '4.0.5.10', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
