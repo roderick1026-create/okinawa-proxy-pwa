@@ -23,8 +23,10 @@
       '<input id="mq" type="number" min="1" max="' + limit + '" step="1" value="' + limit + '" oninput="resetAllocationFromInput(\'mq\')">' +
       '<label>實際採買單價 ¥／件</label>' +
       '<input id="mcost" type="number" min="0" value="' + info.price + '">' +
-      '<label>商品照片（可補上傳）</label>' +
-      '<input id="purchasePhotoInput" type="file" accept="image/*" capture="environment" onchange="selectPurchasePhoto(this)">' +
+      '<label>實際購入商品／規格（選填）</label>' +
+      '<input id="mactual" placeholder="未填則使用：' + esc(info.product) + '">' +
+      '<label>商品照片（從相簿選擇）</label>' +
+      '<input id="purchasePhotoInput" type="file" accept="image/*" onchange="selectPurchasePhoto(this)">' +
       '<img id="purchasePhotoPreview" class="photoThumb" style="display:none;margin-top:8px" alt="商品照片預覽">' +
       '<label>店家／備註</label><input id="mnote">' +
       '<div id="allocationEditor"></div>' +
@@ -53,6 +55,7 @@
       return;
     }
     var note = el('mnote').value;
+    var actualProduct = String(el('mactual').value || '').trim() || info.product;
     var method = '現金';
     var temporaryId = 'TEMP-' + Date.now();
     var photo = purchasePhotoDataUrl;
@@ -62,6 +65,7 @@
       qty: qty,
       cost: cost,
       note: note,
+      actualProduct: actualProduct,
       paymentMethod: method,
       photoDataUrl: photo,
       allocations: allocations,
@@ -71,7 +75,7 @@
     optimisticAction('recordPurchase', request, function () {
       data.purchases.push({
         id: temporaryId, product: info.product, orderPrice: info.price,
-        buyer: user, qty: qty, cost: cost, note: note, paymentMethod: method,
+        buyer: user, qty: qty, cost: cost, note: note, actualProduct: actualProduct, paymentMethod: method,
         status: '已購', photoUrl: photo, allocations: allocations
       });
     }, function () {
@@ -92,6 +96,7 @@
       '<label>數量（最多 ' + limit + ' 件）</label>' +
       '<input id="ebq" type="number" min="1" max="' + limit + '" step="1" value="' + esc(purchase.qty) + '" oninput="resetAllocationFromInput(\'ebq\')">' +
       '<label>總成本 ¥</label><input id="ebc" type="number" min="0" value="' + esc(purchase.cost) + '">' +
+      '<label>實際購入商品／規格（選填）</label><input id="ebactual" value="' + esc(purchase.actualProduct && purchase.actualProduct !== purchase.product ? purchase.actualProduct : '') + '" placeholder="未填則使用：' + esc(purchase.product) + '">' +
       '<label>備註</label><input id="ebn" value="' + esc(purchase.note || '') + '">' +
       '<div id="allocationEditor"></div>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveEB(\'' + jsq(id) + '\')">儲存更正</button>'
@@ -112,12 +117,14 @@
       return;
     }
     var method = purchase.paymentMethod || '現金';
-    var before = { buyer: purchase.buyer, qty: purchase.qty, cost: purchase.cost, note: purchase.note, paymentMethod: purchase.paymentMethod, allocations: purchase.allocations };
-    var next = { buyer: el('ebu').value, qty: qty, cost: cost, note: el('ebn').value, paymentMethod: method, allocations: allocations };
+    var actualProduct = String(el('ebactual').value || '').trim() || purchase.product;
+    var before = { buyer: purchase.buyer, qty: purchase.qty, cost: purchase.cost, note: purchase.note, actualProduct: purchase.actualProduct, paymentMethod: purchase.paymentMethod, allocations: purchase.allocations };
+    var next = { buyer: el('ebu').value, qty: qty, cost: cost, note: el('ebn').value, actualProduct: actualProduct, paymentMethod: method, allocations: allocations };
     closeM();
     optimisticAction('updatePurchase', payload({
       id: id, buyer: next.buyer, qty: qty, cost: cost, note: next.note,
       paymentMethod: method, orderPrice: Number(purchase.orderPrice) || 0,
+      actualProduct: actualProduct,
       allocations: allocations, expectedModified: purchase.modified || '', requestId: paymentRequestId()
     }), function () {
       Object.assign(purchase, next);
@@ -134,5 +141,5 @@
   window.saveBuy = savePurchase;
   window.editBuy = editPurchase;
   window.saveEB = savePurchaseEdit;
-  window.OkinawaPwaV4054 = { version: '4.0.5.7', purchase: { open: openPurchase, save: savePurchase, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.8', purchase: { open: openPurchase, save: savePurchase, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
