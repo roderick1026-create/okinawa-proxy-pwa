@@ -1,7 +1,7 @@
 /* Okinawa PWA V4.0.5.4 canonical purchase flow.
  * This file is loaded after the legacy bundle and is the only purchase-flow
  * implementation to edit going forward. It deliberately keeps the current UI
- * and all fields: cost, payment method, note, photo, and allocations.
+ * and all visible fields: cost, note, photo, and allocations.
  */
 (function () {
   function purchaseKeyInfo(key) {
@@ -23,8 +23,6 @@
       '<input id="mq" type="number" min="1" max="' + limit + '" step="1" value="' + limit + '" oninput="resetAllocationFromInput(\'mq\')">' +
       '<label>實際採買單價 ¥／件</label>' +
       '<input id="mcost" type="number" min="0" value="' + info.price + '">' +
-      '<label>支付方式</label>' +
-      '<select id="mpayment" onchange="rememberPayment(this.value)">' + paymentOptions(lastPaymentMethod()) + '</select>' +
       '<label>商品照片（可補上傳）</label>' +
       '<input id="purchasePhotoInput" type="file" accept="image/*" capture="environment" onchange="selectPurchasePhoto(this)">' +
       '<img id="purchasePhotoPreview" class="photoThumb" style="display:none;margin-top:8px" alt="商品照片預覽">' +
@@ -47,7 +45,7 @@
       return;
     }
     var note = el('mnote').value;
-    var method = rememberPayment(el('mpayment').value);
+    var method = '現金';
     var temporaryId = 'TEMP-' + Date.now();
     var photo = purchasePhotoDataUrl;
     var request = payload({
@@ -86,7 +84,6 @@
       '<label>數量（最多 ' + limit + ' 件）</label>' +
       '<input id="ebq" type="number" min="1" max="' + limit + '" step="1" value="' + esc(purchase.qty) + '" oninput="resetAllocationFromInput(\'ebq\')">' +
       '<label>總成本 ¥</label><input id="ebc" type="number" min="0" value="' + esc(purchase.cost) + '">' +
-      '<label>支付方式</label><select id="ebpayment" onchange="rememberPayment(this.value)">' + paymentOptions(purchase.paymentMethod || lastPaymentMethod()) + '</select>' +
       '<label>備註</label><input id="ebn" value="' + esc(purchase.note || '') + '">' +
       '<div id="allocationEditor"></div>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveEB(\'' + jsq(id) + '\')">儲存更正</button>'
@@ -106,7 +103,7 @@
       alert('請確認採買數量、顧客分配與成本');
       return;
     }
-    var method = rememberPayment(el('ebpayment').value);
+    var method = purchase.paymentMethod || '現金';
     var before = { buyer: purchase.buyer, qty: purchase.qty, cost: purchase.cost, note: purchase.note, paymentMethod: purchase.paymentMethod, allocations: purchase.allocations };
     var next = { buyer: el('ebu').value, qty: qty, cost: cost, note: el('ebn').value, paymentMethod: method, allocations: allocations };
     closeM();
@@ -119,7 +116,7 @@
     }, function () {
       Object.assign(purchase, before);
     }, function () {
-      toast('採買與顧客分配已更正｜' + method);
+      toast('採買與顧客分配已更正');
     });
   }
 
