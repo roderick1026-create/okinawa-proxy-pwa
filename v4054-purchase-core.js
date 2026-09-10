@@ -4,8 +4,13 @@
  * and all visible fields: cost, note, photo, and allocations.
  */
 (function () {
+  var activeDraftPhotoUrl = '';
   function purchaseKeyInfo(key) {
     return priceGroupInfo(key);
+  }
+
+  function purchaseDraft(key) {
+    return ((data.drafts || []).find(function (item) { return item.key === key; })) || {};
   }
 
   function openPurchase(key) {
@@ -15,7 +20,9 @@
       toast('此價格組合已買齊');
       return;
     }
+    var draft = purchaseDraft(key);
     purchasePhotoDataUrl = '';
+    activeDraftPhotoUrl = draft.photoUrl || '';
     openM(
       '<h3>🛒 記錄採買｜' + esc(info.product) + '</h3>' +
       '<div class="small">喊單日幣售價：' + yen(info.price) + '／件｜採買人：' + esc(user) + '</div>' +
@@ -24,13 +31,14 @@
       '<label>實際採買單價 ¥／件</label>' +
       '<input id="mcost" type="number" min="0" value="' + info.price + '">' +
       '<label>實際購入商品／規格（選填）</label>' +
-      '<input id="mactual" placeholder="未填則使用：' + esc(info.product) + '">' +
+      '<input id="mactual" value="' + esc(draft.actualProduct || '') + '" placeholder="未填則使用：' + esc(info.product) + '">' +
       '<label>商品照片（從相簿選擇）</label>' +
       '<input id="purchasePhotoInput" type="file" accept="image/*" onchange="selectPurchasePhoto(this)">' +
-      '<img id="purchasePhotoPreview" class="photoThumb" style="display:none;margin-top:8px" alt="商品照片預覽">' +
-      '<label>店家／備註</label><input id="mnote">' +
+      '<img id="purchasePhotoPreview" class="photoThumb" style="' + (activeDraftPhotoUrl ? 'display:block' : 'display:none') + ';margin-top:8px" src="' + esc(activeDraftPhotoUrl) + '" alt="商品照片預覽">' +
+      '<label>店家／備註</label><input id="mnote" value="' + esc(draft.note || '') + '">' +
       '<div id="allocationEditor"></div>' +
       '<div class="small" style="margin-top:8px;color:#52606d">現場只能買部分數量時，先在顧客分配選擇實際買到的件數；儲存時會依已分配數量記錄，剩下的會繼續保留在待採買。</div>' +
+      '<button class="btn ghost" style="margin-top:12px" onclick="savePurchaseDraft(\'' + jsq(key) + '\')">💾 儲存商品資訊</button>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveBuy(\'' + jsq(key) + '\')">已採買</button>'
     );
     beginAllocation(key, 'mq', '', []);
@@ -68,6 +76,7 @@
       actualProduct: actualProduct,
       paymentMethod: method,
       photoDataUrl: photo,
+      draftPhotoUrl: photo ? '' : activeDraftPhotoUrl,
       allocations: allocations,
       requestId: paymentRequestId()
     });
@@ -82,6 +91,26 @@
       data.purchases = data.purchases.filter(function (item) { return item.id !== temporaryId; });
     }, function () {
       toast('採買已同步｜' + qty + ' 件｜總成本 ' + yen(cost));
+    });
+  }
+
+  function saveDraft(key) {
+    var info = purchaseKeyInfo(key);
+    var actualProduct = String(el('mactual').value || '').trim();
+    var note = String(el('mnote').value || '').trim();
+    if (!actualProduct && !note && !purchasePhotoDataUrl && !activeDraftPhotoUrl) {
+      alert('請至少填寫實際購入商品／規格、備註或選擇照片');
+      return;
+    }
+    callApi('savePurchaseDraft', payload({
+      key: key, product: info.product, orderPrice: info.price,
+      actualProduct: actualProduct, note: note, photoDataUrl: purchasePhotoDataUrl,
+      requestId: paymentRequestId()
+    }), function (latest) {
+      var saved = ((latest && latest.drafts) || []).find(function (item) { return item.key === key; }) || {};
+      activeDraftPhotoUrl = saved.photoUrl || activeDraftPhotoUrl;
+      purchasePhotoDataUrl = '';
+      toast('商品資訊已儲存，尚未標記採買');
     });
   }
 
@@ -141,5 +170,7 @@
   window.saveBuy = savePurchase;
   window.editBuy = editPurchase;
   window.saveEB = savePurchaseEdit;
-  window.OkinawaPwaV4054 = { version: '4.0.5.8', purchase: { open: openPurchase, save: savePurchase, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.savePurchaseDraft = saveDraft;
+  WRITE_ACTIONS.savePurchaseDraft = 1;
+  window.OkinawaPwaV4054 = { version: '4.0.5.9', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
