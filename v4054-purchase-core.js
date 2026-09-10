@@ -287,5 +287,5 @@
     el('payTotal').innerHTML = unpaid.length ? '待收款 ' + unpaid.length + ' 筆｜合計 NT$' + Math.round(unpaid.reduce(function (sum, order) { return sum + orderTwd(order); }, 0)).toLocaleString() + '<small>此總額只包含目前喊單人篩選下的未收款有效訂單</small>' : '✅ 目前篩選條件下沒有待收款項目';
   };
   window.setPaymentOwnerFilter = setPaymentOwnerFilter;
-  window.OkinawaPwaV4054 = { version: '4.0.5.14', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.15', purchase: { open: openPurchase, save: savePurchase, saveDraft: saveDraft, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
