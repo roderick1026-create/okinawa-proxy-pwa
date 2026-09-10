@@ -28,6 +28,7 @@
       '<img id="purchasePhotoPreview" class="photoThumb" style="display:none;margin-top:8px" alt="商品照片預覽">' +
       '<label>店家／備註</label><input id="mnote">' +
       '<div id="allocationEditor"></div>' +
+      '<div class="small" style="margin-top:8px;color:#52606d">現場只能買部分數量時，先在顧客分配選擇實際買到的件數；儲存時會依已分配數量記錄，剩下的會繼續保留在待採買。</div>' +
       '<button class="btn primary" style="margin-top:12px" onclick="saveBuy(\'' + jsq(key) + '\')">已採買</button>'
     );
     beginAllocation(key, 'mq', '', []);
@@ -37,9 +38,16 @@
     var info = purchaseKeyInfo(key);
     var qty = Number(el('mq').value);
     var unit = Number(el('mcost').value);
-    var cost = qty * unit;
     var limit = purchaseLimit(key);
     var allocations = allocationPayload();
+    var allocatedQty = allocationTotal();
+    // Store staff often find only part of the requested quantity.  The manual
+    // allocation is the clearest expression of what was actually obtained.
+    if (allocatedQty > 0 && allocatedQty < qty) {
+      qty = allocatedQty;
+      el('mq').value = qty;
+    }
+    var cost = qty * unit;
     if (!Number.isInteger(qty) || qty < 1 || qty > limit || allocationTotal() !== qty || !isFinite(unit) || unit < 0) {
       alert('請確認採買數量、顧客分配與成本');
       return;
@@ -69,7 +77,7 @@
     }, function () {
       data.purchases = data.purchases.filter(function (item) { return item.id !== temporaryId; });
     }, function () {
-      toast('採買已同步｜' + method + '｜總成本 ' + yen(cost));
+      toast('採買已同步｜' + qty + ' 件｜總成本 ' + yen(cost));
     });
   }
 
@@ -126,5 +134,5 @@
   window.saveBuy = savePurchase;
   window.editBuy = editPurchase;
   window.saveEB = savePurchaseEdit;
-  window.OkinawaPwaV4054 = { version: '4.0.5.4', purchase: { open: openPurchase, save: savePurchase, edit: editPurchase, saveEdit: savePurchaseEdit } };
+  window.OkinawaPwaV4054 = { version: '4.0.5.7', purchase: { open: openPurchase, save: savePurchase, edit: editPurchase, saveEdit: savePurchaseEdit } };
 }());
